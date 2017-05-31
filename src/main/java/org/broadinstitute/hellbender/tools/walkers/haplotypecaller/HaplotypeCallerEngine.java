@@ -146,6 +146,16 @@ public final class HaplotypeCallerEngine implements AssemblyRegionEvaluator {
         initialize();
     }
 
+    public HaplotypeCallerEngine( final HaplotypeCallerArgumentCollection hcArgs, final SAMFileHeader readsHeader, ReferenceSequenceFile referenceReader,
+            VariantAnnotatorEngine annotationEngine ) {
+        this.hcArgs = Utils.nonNull(hcArgs);
+        this.readsHeader = Utils.nonNull(readsHeader);
+        this.referenceReader = Utils.nonNull(referenceReader);
+        this.annotationEngine = annotationEngine;
+
+        initialize();
+    }
+
     private void initialize() {
         // Note: order of operations matters here!
 
@@ -157,7 +167,10 @@ public final class HaplotypeCallerEngine implements AssemblyRegionEvaluator {
 
         initializeActiveRegionEvaluationGenotyperEngine();
 
-        annotationEngine = VariantAnnotatorEngine.ofSelectedMinusExcluded(hcArgs.annotationGroupsToUse, hcArgs.annotationsToUse, hcArgs.annotationsToExclude, hcArgs.dbsnp.dbsnp, hcArgs.comps);
+        if (annotationEngine == null) {
+            annotationEngine = VariantAnnotatorEngine.ofSelectedMinusExcluded(hcArgs.annotationGroupsToUse, hcArgs.annotationsToUse, hcArgs.annotationsToExclude, hcArgs.dbsnp.dbsnp, hcArgs.comps);
+
+        }
 
         genotypingEngine = new HaplotypeCallerGenotypingEngine(hcArgs, samplesList, FixedAFCalculatorProvider.createThreadSafeProvider(hcArgs), ! hcArgs.doNotRunPhysicalPhasing);
         genotypingEngine.setAnnotationEngine(annotationEngine);
