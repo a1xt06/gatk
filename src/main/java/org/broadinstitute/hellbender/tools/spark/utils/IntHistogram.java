@@ -155,6 +155,10 @@ public final class IntHistogram {
             output.writeLong(nCounts);
         }
 
+        public int size() { return cdfFractions.length; }
+        public float getFraction( final int idx ) { return cdfFractions[idx]; }
+        public long getTotalObservations() { return nCounts; }
+
         public IntHistogram createEmptyHistogram() {
             return new IntHistogram(cdfFractions.length - 2);
         }
@@ -167,7 +171,7 @@ public final class IntHistogram {
             Utils.validateArg(significance > 0f && significance < .2f,
                     "The significance must be specifed as a probability of a chance occurrence (a number like .01f).");
             Utils.validateArg(sampleCounts.length == cdfFractions.length,
-                    "The supplied histogram doesn't have the right shape.");
+                    "The supplied histogram doesn't have the right size.");
 
             final long mCounts = sampleHistogram.getTotalObservations();
             Utils.validateArg(mCounts > 0, "The supplied histogram is empty.");
@@ -198,6 +202,46 @@ public final class IntHistogram {
             return false;
         }
 
+        public KSData evalKS( final IntHistogram sampleHistogram ) {
+            final long[] sampleCounts = sampleHistogram.counts;
+            Utils.validateArg(sampleCounts.length == cdfFractions.length,
+                                "The supplied histogram doesn't have the right size.");
+            final long mCounts = sampleHistogram.getTotalObservations();
+            if ( mCounts == 0L ) return null;
+
+            int locationOfMaxDiff = -1;
+            float maxDiff = 0.f;
+            float maxArea = 0.f;
+            long sum = 0L; // sum from 0 to idx of sample histogram counts
+            int idx = 0; // current index into sample histogram
+            float curVal = 0.f; // sum/mCounts as a float (between 0 and 1)
+            float curArea = 0.f;
+            while ( sum < mCounts ) {
+                final long val = sampleCounts[idx];
+                sum += val;
+                curVal = (float)sum / mCounts;
+                final float curDiff = curVal - cdfFractions[idx];
+                if ( curDiff >= 0.f == curArea >= 0.f ) {
+                    curArea += curDiff;
+                } else {
+                    if ( Math.abs(curArea) > Math.abs(maxArea) ) {
+                        maxArea = curArea;
+                    }
+                    curArea = curDiff;
+                }
+                if ( Math.abs(curDiff) > Math.abs(maxDiff) ) {
+                    maxDiff = curDiff;
+                    locationOfMaxDiff = idx;
+                }
+                idx += 1;
+            }
+            if ( Math.abs(curArea) > Math.abs(maxArea) ) {
+                maxArea = curArea;
+            }
+            final double significance =  2.*Math.exp(-2.*nCounts*mCounts*maxDiff*maxDiff/(mCounts+nCounts));
+            return new KSData(locationOfMaxDiff, maxDiff, maxArea, significance);
+        }
+
         public int median() { return internalPopStat(.5f); }
         public int leftMedianDeviation( final int median ) { return median - internalPopStat(.25f); }
         public int rightMedianDeviation( final int median ) {
@@ -213,6 +257,26 @@ public final class IntHistogram {
         private int internalPopStat( final float popFraction ) {
             final int idx = Arrays.binarySearch(cdfFractions, popFraction);
             return idx < 0 ? -idx - 1 : idx;
+        }
+
+        public final static class KSData {
+            private int locationOfMaxDiff;
+            private float maxDiff;
+            private float maxArea;
+            private double significance;
+
+            public KSData( final int locationOfMaxDiff, final float maxDiff, final float maxArea,
+                           final double significance ) {
+                this.locationOfMaxDiff = locationOfMaxDiff;
+                this.maxDiff = maxDiff;
+                this.maxArea = maxArea;
+                this.significance = significance;
+            }
+
+            public int getLocationOfMaxDiff() { return locationOfMaxDiff; }
+            public float getMaxDiff() { return maxDiff; }
+            public float getMaxArea() { return maxArea; }
+            public double getSignificance() { return significance; }
         }
 
         public final static class Serializer extends com.esotericsoftware.kryo.Serializer<CDF> {

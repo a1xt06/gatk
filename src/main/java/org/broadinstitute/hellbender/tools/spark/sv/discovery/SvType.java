@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Various types of structural variations
  */
-abstract class SvType {
+public abstract class SvType {
 
     static final String TANDEMUPLICATION_CONTRACTION_ID_START_STRING = "DEL-DUPLICATION-TANDEM-CONTRACTION";
     static final String TANDEMUPLICATION_EXPANSION_ID_START_STRING = "INS-DUPLICATION-TANDEM-EXPANSION";
@@ -21,7 +21,7 @@ abstract class SvType {
     protected final int svLen;
     protected final Map<String, String> extraAttributes;
 
-    enum TYPES {
+    public enum TYPES {
         INV, DEL, INS, DUP;
     }
 

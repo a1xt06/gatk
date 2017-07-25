@@ -7,7 +7,6 @@ import org.broadinstitute.hellbender.tools.spark.utils.IntHistogram;
 import org.broadinstitute.hellbender.utils.IntHistogramTest;
 import org.broadinstitute.hellbender.utils.read.ArtificialReadUtils;
 import org.broadinstitute.hellbender.utils.read.GATKRead;
-import org.broadinstitute.hellbender.utils.read.SAMRecordToGATKReadAdapter;
 import org.broadinstitute.hellbender.utils.test.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,15 +32,16 @@ public class FindSmallIndelRegionsUnitTest extends BaseTest {
         final StructuralVariationDiscoveryArgumentCollection.FindBreakpointEvidenceSparkArgumentCollection params =
                 new StructuralVariationDiscoveryArgumentCollection.FindBreakpointEvidenceSparkArgumentCollection();
         final SVReadFilter filter = new SVReadFilter(params);
-        final FragmentLengthStatistics stats =
-                new FragmentLengthStatistics(IntHistogramTest.genLogNormalSample(400, 175, 10000));
+        final LibraryStatistics stats =
+                new LibraryStatistics(IntHistogramTest.genLogNormalSample(400, 175, 10000).getCDF(),
+                        60000000000L, 600000000L, 3000000000L);
         final Set<Integer> crossContigIgnoreSet = new HashSet<>(3);
         crossContigIgnoreSet.add(2);
         final ReadMetadata readMetadata = new ReadMetadata(crossContigIgnoreSet, header, stats, null, 4L, 4L, 1);
         final FindSmallIndelRegions.Finder finder = new FindSmallIndelRegions.Finder(readMetadata, filter);
         final List<BreakpointEvidence> evList = new ArrayList<>();
         for ( final GATKRead read : reads ) {
-            finder.test(read, evList);
+            finder.testReadAndGatherEvidence(read, evList);
         }
         final IntHistogram[] histoPair = finder.getLibraryToHistoPairMap().get(readGroup.getLibrary());
         Assert.assertEquals(histoPair[1].getTotalObservations(), 0L);

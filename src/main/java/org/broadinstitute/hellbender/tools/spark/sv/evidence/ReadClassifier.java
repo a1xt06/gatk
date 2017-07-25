@@ -48,7 +48,7 @@ public class ReadClassifier implements Function<GATKRead, Iterator<BreakpointEvi
         final List<BreakpointEvidence> evidenceList = new ArrayList<>();
         checkForSplitRead(read, evidenceList);
         checkDiscordantPair(read, evidenceList);
-        smallIndelFinder.test(read, evidenceList);
+        smallIndelFinder.testReadAndGatherEvidence(read, evidenceList);
 
         return evidenceList.iterator();
     }
