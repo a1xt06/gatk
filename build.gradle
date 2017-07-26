@@ -113,6 +113,7 @@ dependencies {
 
     // Library for configuration:
     compile 'org.aeonbits.owner:owner:1.0.9'
+//    compile 'org.aeonbits.owner:owner:1.0.10-SNAPSHOT'
 
     compile 'org.broadinstitute:barclay:1.1.0'
     compile ('com.intel:genomicsdb:' + genomicsdbVersion)  {

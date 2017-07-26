@@ -1,5 +1,7 @@
 package org.broadinstitute.hellbender.utils.config;
 
+import org.aeonbits.owner.Accessible;
+import org.aeonbits.owner.Config;
 import org.aeonbits.owner.ConfigFactory;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.testng.Assert;
@@ -24,7 +26,17 @@ public class ConfigUnitTest {
     // Helper Methods:
     // ================================================================================
 
+    void listAndStoreConfigToStdOut(Accessible config) throws IOException {
 
+        config.list(System.out);
+        System.out.println();
+
+        config.store(System.out, "");
+        System.out.println();
+
+        config.storeToXML(System.out, "");
+        System.out.println();
+    }
 
     // ================================================================================
     // Data Providers:
@@ -97,10 +109,13 @@ public class ConfigUnitTest {
     }
 
     @Test
-    void testInitializeConfiguration() {
+    void testInitializeConfiguration() throws IOException {
         String inputPropertiesFile = "src/test/resources/org/broadinstitute/hellbender/utils/config/AdditionalTestOverrides.properties";
 
         BasicTestConfig basicTestConfig = ConfigUtils.initializeConfiguration(inputPropertiesFile, BasicTestConfig.class);
+
+        // List properties for inspection:
+        listAndStoreConfigToStdOut(basicTestConfig);
 
         // Check for our values:
         Assert.assertEquals(basicTestConfig.booleanDefFalse(), false);
@@ -111,10 +126,13 @@ public class ConfigUnitTest {
     }
 
     @Test
-    void testOwnerConfiguration() {
+    void testOwnerConfiguration() throws IOException {
 
         // Test with our basic test class:
         BasicTestConfig basicTestConfig = ConfigFactory.create(BasicTestConfig.class);
+
+        // List properties for inspection:
+        listAndStoreConfigToStdOut(basicTestConfig);
 
         Assert.assertEquals(basicTestConfig.booleanDefFalse(), false);
         Assert.assertEquals(basicTestConfig.booleanDefTrue(), true);
@@ -124,11 +142,14 @@ public class ConfigUnitTest {
     }
 
     @Test
-    void testOwnerConfigurationWithClassPathOverrides() {
+    void testOwnerConfigurationWithClassPathOverrides() throws IOException {
 
         // Test with the class that overrides on the class path:
         BasicTestConfigWithClassPathOverrides basicTestConfigWithClassPathOverrides =
                 ConfigFactory.create(BasicTestConfigWithClassPathOverrides.class);
+
+        // List properties for inspection:
+        listAndStoreConfigToStdOut(basicTestConfigWithClassPathOverrides);
 
         Assert.assertEquals(basicTestConfigWithClassPathOverrides.booleanDefFalse(), true);
         Assert.assertEquals(basicTestConfigWithClassPathOverrides.booleanDefTrue(), false);
@@ -158,6 +179,9 @@ public class ConfigUnitTest {
         BasicTestConfigWithClassPathOverridesAndVariableFile basicTestConfigWithClassPathOverridesAndVariableFile =
                 ConfigFactory.create(BasicTestConfigWithClassPathOverridesAndVariableFile.class);
 
+        // List properties for inspection:
+        listAndStoreConfigToStdOut(basicTestConfigWithClassPathOverridesAndVariableFile);
+
         Assert.assertEquals(basicTestConfigWithClassPathOverridesAndVariableFile.booleanDefFalse(), true);
         Assert.assertEquals(basicTestConfigWithClassPathOverridesAndVariableFile.booleanDefTrue(), false);
         Assert.assertEquals(basicTestConfigWithClassPathOverridesAndVariableFile.intDef207(), 999);
@@ -180,6 +204,9 @@ public class ConfigUnitTest {
         // Test with the class that overrides on the class path:
         BasicTestConfigWithClassPathOverridesAndVariableFile basicTestConfigWithClassPathOverridesAndVariableFile =
                 ConfigFactory.create(BasicTestConfigWithClassPathOverridesAndVariableFile.class);
+
+        // List properties for inspection:
+        listAndStoreConfigToStdOut(basicTestConfigWithClassPathOverridesAndVariableFile);
 
         Assert.assertEquals(basicTestConfigWithClassPathOverridesAndVariableFile.booleanDefFalse(), true);
         Assert.assertEquals(basicTestConfigWithClassPathOverridesAndVariableFile.booleanDefTrue(), false);
