@@ -9,6 +9,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.broadinstitute.hellbender.engine.ReadsDataSource;
+import org.broadinstitute.hellbender.engine.TraversalParameters;
 import org.broadinstitute.hellbender.engine.spark.SparkContextFactory;
 import org.broadinstitute.hellbender.exceptions.GATKException;
 import org.broadinstitute.hellbender.exceptions.UserException;
@@ -219,7 +220,8 @@ public class ReadsSparkSourceUnitTest extends BaseTest {
         ReadsSparkSource readSource = new ReadsSparkSource(ctx);
         List<SimpleInterval> intervals =
                 ImmutableList.of(new SimpleInterval("17", 69010, 69040), new SimpleInterval("17", 69910, 69920));
-        JavaRDD<GATKRead> reads = readSource.getParallelReads(NA12878_chr17_1k_BAM, null, intervals);
+        TraversalParameters traversalParameters = new TraversalParameters(intervals, false);
+        JavaRDD<GATKRead> reads = readSource.getParallelReads(NA12878_chr17_1k_BAM, null, traversalParameters);
 
         SamReaderFactory samReaderFactory = SamReaderFactory.makeDefault().validationStringency(ValidationStringency.SILENT);
         try (SamReader samReader = samReaderFactory.open(new File(NA12878_chr17_1k_BAM))) {
