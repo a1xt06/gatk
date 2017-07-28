@@ -1,12 +1,12 @@
 package org.broadinstitute.hellbender.utils.config;
 
 import org.aeonbits.owner.Accessible;
-import org.aeonbits.owner.Config;
 import org.aeonbits.owner.ConfigFactory;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.broadinstitute.hellbender.utils.test.BaseTest;
 import static java.nio.file.StandardCopyOption.*;
 
 import java.io.File;
@@ -20,7 +20,9 @@ import java.util.Arrays;
  *
  * Created by jonn on 7/19/17.
  */
-public class ConfigUnitTest {
+public class ConfigUnitTest extends BaseTest {
+
+    private final static String testResourceDir = publicTestDir + "org/broadinstitute/hellbender/utils/config/";
 
     // ================================================================================
     // Helper Methods:
@@ -110,7 +112,7 @@ public class ConfigUnitTest {
 
     @Test
     void testInitializeConfiguration() throws IOException {
-        String inputPropertiesFile = "src/test/resources/org/broadinstitute/hellbender/utils/config/AdditionalTestOverrides.properties";
+        String inputPropertiesFile = testResourceDir + "AdditionalTestOverrides.properties";
 
         BasicTestConfig basicTestConfig = ConfigUtils.initializeConfiguration(inputPropertiesFile, BasicTestConfig.class);
 
