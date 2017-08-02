@@ -374,7 +374,7 @@ task Filter {
 
     # FilterByOrientationBias must come after all of the other filtering.
     if [[ ! -z "${pre_adapter_metrics}" ]]; then
-        java -jar $GATK_JAR FilterByOrientationBias -A ${sep=" -A " artifact_modes} \
+        java -Xmx4g -jar $GATK_JAR FilterByOrientationBias -A ${sep=" -A " artifact_modes} \
             -V filtered.vcf -P ${pre_adapter_metrics} --output "${output_vcf_name}-filtered.vcf"
     else
         mv filtered.vcf "${output_vcf_name}-filtered.vcf"

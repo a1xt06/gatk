@@ -25,6 +25,7 @@
 import "cnv_common_tasks.wdl" as CNVTasks
 import "cnv_somatic_copy_ratio_bam_workflow.wdl" as CopyRatio
 import "cnv_somatic_allele_fraction_pair_workflow.wdl" as AlleleFraction
+import "cnv_oncotate.wdl" as Oncotate
 
 workflow CNVSomaticPairWorkflow {
     # Workflow input files
@@ -46,6 +47,8 @@ workflow CNVSomaticPairWorkflow {
     Boolean is_cnv_only = select_first([common_sites, ""]) == ""
     # If no normal BAM is input, then do tumor-only workflow
     Boolean is_tumor_only = select_first([normal_bam, ""]) == ""
+
+    Boolean is_run_oncotator=false
 
     if (!is_wgs) {
         call CNVTasks.PadTargets {
@@ -99,6 +102,13 @@ workflow CNVSomaticPairWorkflow {
         }
     }
 
+    if (is_run_oncotator) {
+        call Oncotate.CNVOncotateCalledSegments as OncotateCalledCNVWorkflow {
+            input:
+                 called_file=TumorCopyRatioWorkflow.called_segments
+        }
+    }
+
     output {
         String tumor_entity_id = TumorCopyRatioWorkflow.entity_id
         File tumor_tn_coverage = TumorCopyRatioWorkflow.tn_coverage
@@ -108,5 +118,6 @@ workflow CNVSomaticPairWorkflow {
         File? normal_called_segments = NormalCopyRatioWorkflow.called_segments
         File? tumor_hets = TumorAlleleFractionWorkflow.tumor_hets
         File? tumor_acnv_segments = TumorAlleleFractionWorkflow.acnv_segments
+        File? oncotated_called_file = OncotateCalledCNVWorkflow.oncotated_called_file
     }
 }
