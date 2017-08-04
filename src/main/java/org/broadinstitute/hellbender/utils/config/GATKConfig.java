@@ -18,7 +18,7 @@ import java.util.List;
         // This is commented out because if you dont let the ConfigFactory know about this parameter,
         // it will try to load it as text.  This results in an unhandled exception.
         // This happens when we run our tests.
-        //"file:${pathToMainConfig}",                                           // Variable for file loading
+        "file:${pathToMainConfig}",                                           // Variable for file loading
         "file:Main.config",                                                     // Default path
         "classpath:org/broadinstitute/hellbender/utils/config/Main.config"      // Class path
 })

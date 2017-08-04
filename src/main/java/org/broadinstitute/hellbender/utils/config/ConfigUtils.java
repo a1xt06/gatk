@@ -2,6 +2,7 @@ package org.broadinstitute.hellbender.utils.config;
 
 import org.aeonbits.owner.Config;
 import org.aeonbits.owner.ConfigCache;
+import org.aeonbits.owner.ConfigFactory;
 import org.broadinstitute.hellbender.exceptions.UserException;
 
 import java.io.FileInputStream;
@@ -18,6 +19,21 @@ public class ConfigUtils {
 
     // This class just has static methods to help with configuration, so no need for this constructor.
     private ConfigUtils() {}
+
+    /**
+     * Sets the {@link org.aeonbits.owner.ConfigFactory} variables so that it knows about
+     * the variable paths for config files.
+     */
+    public static final void setConfigFactoryVariableDefaults() {
+
+        String[] propertyNames = new String[] {
+                "pathToMainConfig",
+        };
+
+        for ( String property : propertyNames ) {
+            ConfigFactory.setProperty(property, "/dev/null");
+        }
+    }
 
     /**
      * Get the configuration file name from the given arguments.
@@ -134,7 +150,6 @@ public class ConfigUtils {
     public static final void injectSystemPropertiesFromSystemConfig(SystemPropertiesConfig config) {
 
         // Set all system properties in our config:
-        // TODO: make a convention with either separate files or property names to access these via reflection.
 
         System.setProperty(
                 "GATK_STACKTRACE_ON_USER_EXCEPTION",
