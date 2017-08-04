@@ -107,7 +107,7 @@ public final class GappedAlignmentSplitter {
                     }
                     final Cigar cigarForNewAlignmentInterval = new Cigar(cigarMemoryList);
 
-                    final AlignedAssembly.AlignmentInterval split = new AlignedAssembly.AlignmentInterval(referenceInterval, contigIntervalStart, contigIntervalEnd, cigarForNewAlignmentInterval, oneRegion.forwardStrand, originalMapQ, SVConstants.DiscoveryStepConstants.ARTIFICIAL_MISMATCH);
+                    final AlignedAssembly.AlignmentInterval split = new AlignedAssembly.AlignmentInterval(referenceInterval, contigIntervalStart, contigIntervalEnd, cigarForNewAlignmentInterval, oneRegion.forwardStrand, originalMapQ, SVConstants.DiscoveryStepConstants.ARTIFICIAL_MISMATCH, -1);
 
                     result.add(split);
 
@@ -144,7 +144,7 @@ public final class GappedAlignmentSplitter {
         int clippedNBasesFromEnd = SVVariantDiscoveryUtils.getNumClippedBases(false, cigarElements);
         result.add(new AlignedAssembly.AlignmentInterval(lastReferenceInterval,
                 contigIntervalStart, unclippedContigLen-clippedNBasesFromEnd, lastForwardStrandCigar,
-                oneRegion.forwardStrand, originalMapQ, SVConstants.DiscoveryStepConstants.ARTIFICIAL_MISMATCH));
+                oneRegion.forwardStrand, originalMapQ, SVConstants.DiscoveryStepConstants.ARTIFICIAL_MISMATCH, -1));
 
 
         return result;

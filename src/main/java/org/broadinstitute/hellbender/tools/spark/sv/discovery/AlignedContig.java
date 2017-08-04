@@ -5,9 +5,11 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalDouble;
 
 /**
  * Locally assembled contig:
@@ -18,14 +20,31 @@ import java.util.List;
 @DefaultSerializer(AlignedContig.Serializer.class)
 public final class AlignedContig {
 
+    public final OptionalDouble score;
     public final String contigName;
     public final byte[] contigSequence;
     public final List<AlignedAssembly.AlignmentInterval> alignmentIntervals;
 
     public AlignedContig(final String contigName, final byte[] contigSequence, final List<AlignedAssembly.AlignmentInterval> alignmentIntervals) {
+        this (contigName, contigSequence, alignmentIntervals, null);
+    }
+
+    public AlignedContig(final String contigName, final byte[] contigSequence, final List<AlignedAssembly.AlignmentInterval> alignmentIntervals, final Double score) {
         this.contigName = contigName;
         this.contigSequence = contigSequence;
         this.alignmentIntervals = alignmentIntervals;
+        this.score = score == null ? OptionalDouble.empty() : OptionalDouble.of(score);
+    }
+
+    public double getScore() {
+        if (!score.isPresent()) {
+            return Double.NaN;
+        }
+        return score.getAsDouble();
+    }
+
+    public boolean hasScore() {
+        return score.isPresent();
     }
 
     public AlignedContig(final Kryo kryo, final Input input) {
@@ -43,6 +62,11 @@ public final class AlignedContig {
         for (int i = 0; i < nAlignments; ++i) {
             alignmentIntervals.add(new AlignedAssembly.AlignmentInterval(kryo, input));
         }
+        if (input.readBoolean()) {
+            score = OptionalDouble.of(input.readDouble());
+        } else {
+            score = OptionalDouble.empty();
+        }
     }
 
     public void serialize(final Kryo kryo, final Output output) {
@@ -56,6 +80,10 @@ public final class AlignedContig {
 
         output.writeInt(alignmentIntervals.size());
         alignmentIntervals.forEach(it -> it.serialize(kryo, output));
+        output.writeBoolean(score.isPresent());
+        if (score.isPresent()) {
+            output.writeDouble(score.getAsDouble());
+        }
     }
 
     public static final class Serializer extends com.esotericsoftware.kryo.Serializer<AlignedContig> {

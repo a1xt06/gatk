@@ -149,7 +149,7 @@ public final class DiscoverVariantsFromContigAlignmentsSGASpark extends GATKSpar
                     final int contigStart = Integer.valueOf(intervalFields[0].split("-")[0]);
                     final int contigEnd = Integer.valueOf(intervalFields[0].split("-")[1]);
 
-                    intervals.add(new AlignedAssembly.AlignmentInterval(AlignAssembledContigsSpark.decodeStringAsSimpleInterval(intervalFields[1]), contigStart, contigEnd, TextCigarCodec.decode(intervalFields[2]), intervalFields[3].equals("+"), Integer.valueOf(intervalFields[4]), Integer.valueOf(intervalFields[5])));
+                    intervals.add(new AlignedAssembly.AlignmentInterval(AlignAssembledContigsSpark.decodeStringAsSimpleInterval(intervalFields[1]), contigStart, contigEnd, TextCigarCodec.decode(intervalFields[2]), intervalFields[3].equals("+"), Integer.valueOf(intervalFields[4]), Integer.valueOf(intervalFields[5]), -1));
                 }
                 return new Tuple2<>(contigName, intervals);
             } catch (final Exception ex) {

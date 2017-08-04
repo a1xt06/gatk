@@ -52,7 +52,7 @@ public class AlignedAssemblyUnitTest extends BaseTest{
      * [5] expected end in assembled contig, 1-based, inclusive
      * [6] expected contig length,
      * [7] expected {@link AlignedAssembly.AlignmentInterval} object (generated manually with all fields explicitly spell out and given to
-     *                                      {@link AlignedAssembly.AlignmentInterval#AlignmentInterval(SimpleInterval, int, int, Cigar, boolean, int, int)}
+     *                                      {@link AlignedAssembly.AlignmentInterval#AlignmentInterval(SimpleInterval, int, int, Cigar, boolean, int, int, int)}
      *                                      intended to be used for testing concordance between the two constructors)
      */
     @DataProvider(name = "AlignmentIntervalCtorTestForSimpleInversion")
@@ -79,7 +79,7 @@ public class AlignedAssemblyUnitTest extends BaseTest{
             final SimpleInterval referenceInterval = new SimpleInterval(refNames.get(0), alignmentStartsOnRef_0Based[i]+1, bwaMemAlignment.getRefEnd());
             final AlignedAssembly.AlignmentInterval alignmentInterval = new AlignedAssembly.AlignmentInterval(referenceInterval, alignmentStartsOnTig_0BasedInclusive[i]+1, alignmentEndsOnTig_0BasedExclusive[i],
                     strandedness[i] ? cigars[i] : CigarUtils.invertCigar(cigars[i]),
-                    strandedness[i], Math.max(SAMRecord.NO_MAPPING_QUALITY, bwaMemAlignment.getMapQual()), bwaMemAlignment.getNMismatches());
+                    strandedness[i], Math.max(SAMRecord.NO_MAPPING_QUALITY, bwaMemAlignment.getMapQual()), bwaMemAlignment.getNMismatches(), bwaMemAlignment.getAlignerScore());
             data[i] = new Object[]{bwaMemAlignment, referenceInterval, strandedness[i] ? cigars[i] : CigarUtils.invertCigar(cigars[i]),
                     strandedness[i], alignmentStartsOnTig_0BasedInclusive[i]+1, alignmentEndsOnTig_0BasedExclusive[i], seqLen[i], mapQualForBwaMemAlgn[i], alignmentInterval};
         }
@@ -135,6 +135,7 @@ public class AlignedAssemblyUnitTest extends BaseTest{
         final int[] seqLen = {8, 8, 10, 10, 12, 12, 14, 14};
         final int[] mapQual = {0, 1, 10, 20, 30, 40, 50, 60};
         final int[] mismatches = {0, 1, 1, 0, 2, 3, 3, 2};
+        final int as = 10;
         final boolean[] strandedness = {true, false, true, false, false, true, false, true};
         final String[] cigarStrings = {"4M4S", "4M4H", "5M5S", "5M5H", "6S6M", "6H6M", "7S7M", "7H7M"}; // each different number represent a different contig's pair of chimeric alignments
         final Cigar[] cigars = Arrays.stream(cigarStrings).map(TextCigarCodec::decode).toArray(Cigar[]::new);
@@ -156,12 +157,12 @@ public class AlignedAssemblyUnitTest extends BaseTest{
             final SimpleInterval referenceIntervalLeft = new SimpleInterval(refNames.get(0), alignmentStartsOnRef_0Based[2*pair]+1, alignmentStartsOnRef_0Based[2*pair]+cigars[2*pair].getReferenceLength()+1);
             final AlignedAssembly.AlignmentInterval alignmentIntervalLeft = new AlignedAssembly.AlignmentInterval(referenceIntervalLeft, alignmentStartsOnTig_0BasedInclusive[2*pair]+1, alignmentEndsOnTig_0BasedExclusive[2*pair],
                     strandedness[2*pair] ? cigars[2*pair] : CigarUtils.invertCigar(cigars[2*pair]),
-                    strandedness[2*pair], mapQual[2*pair], mismatches[2*pair]);
+                    strandedness[2*pair], mapQual[2*pair], mismatches[2*pair], as);
             alignmentIntervalsForSimpleInversion.add(alignmentIntervalLeft);
             final SimpleInterval referenceIntervalRight = new SimpleInterval(refNames.get(0), alignmentStartsOnRef_0Based[2*pair+1]+1, alignmentStartsOnRef_0Based[2*pair+1]+cigars[2*pair+1].getReferenceLength()+1);
             final AlignedAssembly.AlignmentInterval alignmentIntervalRight = new AlignedAssembly.AlignmentInterval(referenceIntervalRight, alignmentStartsOnTig_0BasedInclusive[2*pair+1]+1, alignmentEndsOnTig_0BasedExclusive[2*pair+1],
                     strandedness[2*pair+1] ? cigars[2*pair+1] : CigarUtils.invertCigar(cigars[2*pair+1]),
-                    strandedness[2*pair+1], mapQual[2*pair+1], mismatches[2*pair+1]);
+                    strandedness[2*pair+1], mapQual[2*pair+1], mismatches[2*pair+1], as);
             alignmentIntervalsForSimpleInversion.add(alignmentIntervalRight);
 
             if (pair == 0) {
