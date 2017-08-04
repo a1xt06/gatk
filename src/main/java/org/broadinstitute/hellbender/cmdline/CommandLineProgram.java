@@ -21,8 +21,10 @@ import org.broadinstitute.barclay.argparser.CommandLineParser;
 import org.broadinstitute.barclay.argparser.CommandLinePluginDescriptor;
 import org.broadinstitute.barclay.argparser.CommandLinePluginProvider;
 import org.broadinstitute.barclay.argparser.SpecialArgumentsCollection;
+import org.broadinstitute.hellbender.engine.spark.SparkContextFactory;
 import org.broadinstitute.hellbender.utils.LoggingUtils;
 import org.broadinstitute.hellbender.utils.Utils;
+import org.broadinstitute.hellbender.utils.config.ConfigUtils;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -52,6 +54,7 @@ import java.util.stream.Collectors;
  *
  */
 public abstract class CommandLineProgram implements CommandLinePluginProvider {
+
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
     @Argument(common=true, optional=true)

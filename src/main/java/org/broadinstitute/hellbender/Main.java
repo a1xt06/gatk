@@ -40,6 +40,9 @@ public class Main {
          * to think about number formatting issues.
          */
         Utils.forceJVMLocaleToUSEnglish();
+
+        // Set config factory to know about the configuration options that we have.
+        ConfigUtils.setConfigFactoryVariableDefaults();
     }
 
     /**

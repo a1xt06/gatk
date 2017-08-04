@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -21,17 +22,45 @@ public class ConfigUtils {
     private ConfigUtils() {}
 
     /**
+     * Whether we have already set the config factory variable defaults.
+     */
+    static boolean hasSetConfigFactoryVariableDefaults = false;
+
+    /**
      * Sets the {@link org.aeonbits.owner.ConfigFactory} variables so that it knows about
      * the variable paths for config files.
      */
     public static final void setConfigFactoryVariableDefaults() {
 
-        String[] propertyNames = new String[] {
-                "pathToMainConfig",
-        };
+        // You only need to do this once.
 
-        for ( String property : propertyNames ) {
-            ConfigFactory.setProperty(property, "/dev/null");
+        if ( !hasSetConfigFactoryVariableDefaults ) {
+
+            // The list of properties we need to make sure are defined
+            // either in system properties or environment properties:
+            String[] propertyNames = new String[]{
+                    "pathToMainConfig",
+            };
+
+            // Grab the system properties:
+            Properties systemProperties = System.getProperties();
+
+            // Grab the environment properties:
+            Map<String, String> environmentProperties = System.getenv();
+
+            // Make sure that if our property isn't in the system and environment
+            // properties, that we set it to a neutral value that will not contain
+            // anything (so that the property will fall back into the next value).
+            for (String property : propertyNames) {
+
+                if ((!environmentProperties.keySet().contains(property)) &&
+                        (!systemProperties.containsKey(property))) {
+
+                    ConfigFactory.setProperty(property, "/dev/null");
+                }
+            }
+
+            hasSetConfigFactoryVariableDefaults = true;
         }
     }
 
