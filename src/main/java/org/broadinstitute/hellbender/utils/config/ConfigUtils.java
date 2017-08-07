@@ -3,9 +3,12 @@ package org.broadinstitute.hellbender.utils.config;
 import org.aeonbits.owner.*;
 import org.broadinstitute.hellbender.exceptions.UserException;
 
+import javax.ws.rs.client.Invocation;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,12 +70,6 @@ public class ConfigUtils {
                     }
                 }
             }
-
-//            // The list of properties we need to make sure are defined
-//            // either in system properties or environment properties:
-//            String[] propertyNames = new String[]{
-//                    "pathToMainConfig",
-//            };
 
             // Grab the system properties:
             Properties systemProperties = System.getProperties();
@@ -208,38 +205,51 @@ public class ConfigUtils {
      * Injects system properties from the given configuration file.
      * @param config The {@link GATKConfig} object from which to inject system properties.
      */
-    public static final void injectSystemPropertiesFromSystemConfig(SystemPropertiesConfig config) {
+    public static final <T extends Config> void injectSystemPropertiesFromSystemConfig(T config) {
 
-        // Set all system properties in our config:
+        // This is gross and uses reflection to get all methods in the given config class
+        // and then interrogates those methods for internal data on the config parameters.
 
-        System.setProperty(
-                "GATK_STACKTRACE_ON_USER_EXCEPTION",
-                Boolean.toString( config.GATK_STACKTRACE_ON_USER_EXCEPTION() )
-        );
+        // We have to match our interfaces to the config interface that we're actually using.
+        // It's not as simple as using getDeclaredMethods on the Class object because we'll get
+        // a LOT of extraneous stuff that we don't care about.
+        for ( Class classInterface : config.getClass().getInterfaces() ){
 
-        System.setProperty(
-                "samjdk.use_async_io_read_samtools",
-                Boolean.toString(config.samjdk_use_async_io_read_samtools())
-        );
+            // If we have an interface that is a child of the OWNER Config interface, then
+            // we must have the right object.
+            if (Config.class.isAssignableFrom(classInterface)) {
 
-        System.setProperty(
-                "samjdk.use_async_io_write_samtools",
-                Boolean.toString(config.samjdk_use_async_io_write_samtools())
-        );
+                // Now we cycle through our interface methods, resolve parameter names,
+                // and set the values in the system.
+                for (Method propertyMethod : classInterface.getDeclaredMethods()) {
 
-        System.setProperty(
-                "samjdk.use_async_io_write_tribble",
-                Boolean.toString(config.samjdk_use_async_io_write_tribble())
-        );
+                    // Get the property name:
+                    String propertyName = propertyMethod.getName();
 
-        System.setProperty(
-                "samjdk.compression_level",
-                Integer.toString(config.samjdk_compression_level() )
-        );
+                    Config.Key key = propertyMethod.getAnnotation(Config.Key.class);
+                    if (key != null) {
+                        propertyName = key.value();
+                    }
 
-        System.setProperty(
-                "snappy.disable",
-                Boolean.toString(config.snappy_disable())
-        );
+                    // Get the value of the property into a stringbuilder:
+                    StringBuilder sb = new StringBuilder();
+                    try {
+                        sb.append(propertyMethod.invoke( config, new Object[]{} ));
+                    } catch (IllegalAccessException ex) {
+                        throw new RuntimeException("Could not access the config getter: " +
+                                config.getClass().getSimpleName() + "." +
+                                propertyMethod.getName(), ex);
+
+                    } catch (InvocationTargetException ex) {
+                        throw new RuntimeException("Could not invoke the config getter: " +
+                                config.getClass().getSimpleName() + "." +
+                                propertyMethod.getName(), ex);
+                    }
+
+                    // Set our property:
+                    System.setProperty(propertyName, sb.toString());
+                }
+            }
+        }
     }
 }

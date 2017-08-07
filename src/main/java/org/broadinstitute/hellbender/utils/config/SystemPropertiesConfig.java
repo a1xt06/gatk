@@ -44,6 +44,38 @@ public interface SystemPropertiesConfig extends Mutable, Accessible {
     int samjdk_compression_level();
 
     // =================================================================================
+    // Spark Options:
+    // =================================================================================
+
+    @Key("spark.kryoserializer.buffer.max")
+    @DefaultValue("512m")
+    String spark_kryoserializer_buffer_max();
+
+    @Key("spark.driver.maxResultSize")
+    @DefaultValue("0")
+    int spark_driver_maxResultSize();
+
+    @Key("spark.driver.userClassPathFirst")
+    @DefaultValue("true")
+    boolean spark_driver_userClassPathFirst();
+
+    @Key("spark.io.compression.codec")
+    @DefaultValue("lzf")
+    String spark_io_compression_codec();
+
+    @Key("spark.yarn.executor.memoryOverhead")
+    @DefaultValue("600")
+    int spark_yarn_executor_memoryOverhead();
+
+    @Key("spark.driver.extraJavaOptions")
+    @DefaultValue("")
+    String spark_driver_extraJavaOptions();
+
+    @Key("spark.executor.extraJavaOptions")
+    @DefaultValue("")
+    String spark_executor_extraJavaOptions();
+
+    // =================================================================================
     // Other Options:
     // =================================================================================
 

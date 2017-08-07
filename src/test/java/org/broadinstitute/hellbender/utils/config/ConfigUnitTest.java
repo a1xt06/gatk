@@ -1,5 +1,6 @@
 package org.broadinstitute.hellbender.utils.config;
 
+import com.google.api.client.googleapis.testing.TestUtils;
 import org.aeonbits.owner.Accessible;
 import org.aeonbits.owner.ConfigFactory;
 import org.broadinstitute.hellbender.exceptions.UserException;
@@ -124,6 +125,54 @@ public class ConfigUnitTest extends BaseTest {
         Assert.assertEquals(basicTestConfig.booleanDefTrue(), true);
         Assert.assertEquals(basicTestConfig.intDef207(), 999);
         Assert.assertEquals(basicTestConfig.listOfStringTest(), new ArrayList<>(Arrays.asList(new String[] {"string1", "string2", "string3", "string4"})));
+
+    }
+
+    @Test
+    void testSystemConfiguration() {
+        // Test with our basic test class:
+        SystemTestConfig testConfig = ConfigFactory.create(SystemTestConfig.class);
+
+        ConfigUtils.injectSystemPropertiesFromSystemConfig(testConfig);
+
+        //Verify that the system contains the properties we expect:
+        Assert.assertEquals(
+                System.getProperty("systemBooleanDefTrue"),
+                Boolean.toString( testConfig.systemBooleanDefTrue() )
+        );
+        Assert.assertEquals(
+                System.getProperty("systemBooleanDefFalse"),
+                Boolean.toString( testConfig.systemBooleanDefFalse() )
+        );
+        Assert.assertEquals(
+                System.getProperty("systemIntDef207"),
+                Integer.toString( testConfig.systemIntDef207() )
+        );
+        Assert.assertEquals(
+                System.getProperty("systemListOfStringTest"),
+                testConfig.systemListOfStringTest().toString()
+        );
+
+        Assert.assertEquals(
+                System.getProperty("system.Boolean.Def.True"),
+                Boolean.toString( testConfig.systemBooleanDefTrue2() )
+        );
+        Assert.assertEquals(
+                System.getProperty("system.Boolean.Def.False"),
+                Boolean.toString( testConfig.systemBooleanDefFalse2() )
+        );
+        Assert.assertEquals(
+                System.getProperty("system.Int.Def.207"),
+                Integer.toString( testConfig.systemIntDef207() )
+        );
+        Assert.assertEquals(
+                System.getProperty("system.List.Of.String.Test"),
+                testConfig.systemListOfStringTest2().toString()
+        );
+    }
+
+    @Test
+    void testSystemConfigurationWithOverrides () {
 
     }
 
