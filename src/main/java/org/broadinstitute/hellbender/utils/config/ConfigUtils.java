@@ -1,16 +1,14 @@
 package org.broadinstitute.hellbender.utils.config;
 
-import org.aeonbits.owner.Config;
-import org.aeonbits.owner.ConfigCache;
-import org.aeonbits.owner.ConfigFactory;
+import org.aeonbits.owner.*;
 import org.broadinstitute.hellbender.exceptions.UserException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A class to contain configuration utility methods.
@@ -36,11 +34,45 @@ public class ConfigUtils {
 
         if ( !hasSetConfigFactoryVariableDefaults ) {
 
-            // The list of properties we need to make sure are defined
-            // either in system properties or environment properties:
-            String[] propertyNames = new String[]{
-                    "pathToMainConfig",
+            ArrayList<String> propertyNames = new ArrayList<>();
+
+            // Get the classes from which we need to look for sources:
+            Class<?>[] configurationClasses = new Class<?>[] {
+                    SystemPropertiesConfig.class,
+                    GATKConfig.class
             };
+
+            // Create a regex to use to look for variables in the Sources annotation:
+            Pattern p = Pattern.compile("\\$\\{(.*)}");
+
+            // Loop through our classes and grab any sources with variables in there:
+            for ( Class<?> clazz : configurationClasses ) {
+                Set<Class<?>> interfaces = new HashSet<>(Arrays.asList(clazz.getInterfaces()));
+
+                // Make sure that we get config classes here:
+                if ( interfaces.contains(Config.class) ||
+                         interfaces.contains(Accessible.class) ||
+                         interfaces.contains(Mutable.class) ||
+                         interfaces.contains(Reloadable.class) ) {
+                    Config.Sources annotation = clazz.getAnnotation(Config.Sources.class);
+
+                    String[] annotationValues = annotation.value();
+
+                    for ( String val : annotationValues ) {
+
+                        Matcher m = p.matcher(val);
+                        if ( m.find() ) {
+                            propertyNames.add(m.group(1));
+                        }
+                    }
+                }
+            }
+
+//            // The list of properties we need to make sure are defined
+//            // either in system properties or environment properties:
+//            String[] propertyNames = new String[]{
+//                    "pathToMainConfig",
+//            };
 
             // Grab the system properties:
             Properties systemProperties = System.getProperties();
