@@ -1,6 +1,5 @@
 package org.broadinstitute.hellbender.utils.config;
 
-import com.google.api.client.googleapis.testing.TestUtils;
 import org.aeonbits.owner.Accessible;
 import org.aeonbits.owner.ConfigFactory;
 import org.broadinstitute.hellbender.exceptions.UserException;
@@ -39,6 +38,26 @@ public class ConfigUnitTest extends BaseTest {
 
         config.storeToXML(System.out, "");
         System.out.println();
+    }
+
+    void validateAndClearProperty(String key, Object value) {
+
+        String other = null;
+
+        if ( value != null ) {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(value);
+
+            other = sb.toString();
+        }
+
+        Assert.assertEquals(
+                System.getProperty(key),
+                other
+        );
+
+        System.clearProperty(key);
     }
 
     // ================================================================================
@@ -133,47 +152,37 @@ public class ConfigUnitTest extends BaseTest {
         // Test with our basic test class:
         SystemTestConfig testConfig = ConfigFactory.create(SystemTestConfig.class);
 
-        ConfigUtils.injectSystemPropertiesFromSystemConfig(testConfig);
+        ConfigUtils.injectSystemPropertiesFromConfig(testConfig);
 
         //Verify that the system contains the properties we expect:
-        Assert.assertEquals(
-                System.getProperty("systemBooleanDefTrue"),
-                Boolean.toString( testConfig.systemBooleanDefTrue() )
-        );
-        Assert.assertEquals(
-                System.getProperty("systemBooleanDefFalse"),
-                Boolean.toString( testConfig.systemBooleanDefFalse() )
-        );
-        Assert.assertEquals(
-                System.getProperty("systemIntDef207"),
-                Integer.toString( testConfig.systemIntDef207() )
-        );
-        Assert.assertEquals(
-                System.getProperty("systemListOfStringTest"),
-                testConfig.systemListOfStringTest().toString()
-        );
+        validateAndClearProperty("systemBooleanDefTrue",       testConfig.systemBooleanDefTrue());
+        validateAndClearProperty("systemBooleanDefFalse",      testConfig.systemBooleanDefFalse());
+        validateAndClearProperty("systemIntDef207",            testConfig.systemIntDef207());
+        validateAndClearProperty("systemListOfStringTest",     testConfig.systemListOfStringTest());
 
-        Assert.assertEquals(
-                System.getProperty("system.Boolean.Def.True"),
-                Boolean.toString( testConfig.systemBooleanDefTrue2() )
-        );
-        Assert.assertEquals(
-                System.getProperty("system.Boolean.Def.False"),
-                Boolean.toString( testConfig.systemBooleanDefFalse2() )
-        );
-        Assert.assertEquals(
-                System.getProperty("system.Int.Def.207"),
-                Integer.toString( testConfig.systemIntDef207() )
-        );
-        Assert.assertEquals(
-                System.getProperty("system.List.Of.String.Test"),
-                testConfig.systemListOfStringTest2().toString()
-        );
+        validateAndClearProperty("system.Boolean.Def.True",    testConfig.systemBooleanDefTrue2());
+        validateAndClearProperty("system.Boolean.Def.False",   testConfig.systemBooleanDefFalse2());
+        validateAndClearProperty("system.Int.Def.207",         testConfig.systemIntDef2072());
+        validateAndClearProperty("system.List.Of.String.Test", testConfig.systemListOfStringTest2());
     }
 
     @Test
-    void testSystemConfigurationWithOverrides () {
+    void testSystemConfigurationPrefixOnly() {
+        // Test with our basic test class:
+        SystemTestConfig testConfig = ConfigFactory.create(SystemTestConfig.class);
 
+        ConfigUtils.injectSystemPropertiesFromConfig(testConfig, "system.");
+
+        //Verify that the system contains the properties we expect:
+        validateAndClearProperty("systemBooleanDefTrue",       null);
+        validateAndClearProperty("systemBooleanDefFalse",      null);
+        validateAndClearProperty("systemIntDef207",            null);
+        validateAndClearProperty("systemListOfStringTest",     null);
+
+        validateAndClearProperty("system.Boolean.Def.True",    testConfig.systemBooleanDefTrue2());
+        validateAndClearProperty("system.Boolean.Def.False",   testConfig.systemBooleanDefFalse2());
+        validateAndClearProperty("system.Int.Def.207",         testConfig.systemIntDef2072());
+        validateAndClearProperty("system.List.Of.String.Test", testConfig.systemListOfStringTest2());
     }
 
     @Test

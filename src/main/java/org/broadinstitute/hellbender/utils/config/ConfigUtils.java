@@ -3,7 +3,6 @@ package org.broadinstitute.hellbender.utils.config;
 import org.aeonbits.owner.*;
 import org.broadinstitute.hellbender.exceptions.UserException;
 
-import javax.ws.rs.client.Invocation;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,7 +40,6 @@ public class ConfigUtils {
 
             // Get the classes from which we need to look for sources:
             Class<?>[] configurationClasses = new Class<?>[] {
-                    SystemPropertiesConfig.class,
                     GATKConfig.class
             };
 
@@ -154,11 +152,8 @@ public class ConfigUtils {
         // Alternate way to load the config file:
         GATKConfig gatkConfig = ConfigUtils.initializeConfiguration( systemConfigFileName, GATKConfig.class );
 
-        // NOTE: Alternate way to load the config file:
-        SystemPropertiesConfig systemPropertiesConfig = ConfigUtils.initializeConfiguration( systemConfigFileName, SystemPropertiesConfig.class );
-
         // To start with we inject our system properties to ensure they are defined for downstream components:
-        ConfigUtils.injectSystemPropertiesFromSystemConfig( systemPropertiesConfig );
+        ConfigUtils.injectSystemPropertiesFromConfig( gatkConfig, GATKConfig.SYSTEM_PROPERTY_PREFIX );
     }
 
     /**
@@ -205,7 +200,16 @@ public class ConfigUtils {
      * Injects system properties from the given configuration file.
      * @param config The {@link GATKConfig} object from which to inject system properties.
      */
-    public static final <T extends Config> void injectSystemPropertiesFromSystemConfig(T config) {
+    public static final <T extends Config> void injectSystemPropertiesFromConfig(T config) {
+        injectSystemPropertiesFromConfig(config, "");
+    }
+
+    /**
+     * Injects system properties from the given configuration file.
+     * @param config The {@link GATKConfig} object from which to inject system properties.
+     * @param propertyPrefix Prefix that is required for a property in {@code config} to be imported to System properties.
+     */
+    public static final <T extends Config> void injectSystemPropertiesFromConfig(T config, String propertyPrefix) {
 
         // This is gross and uses reflection to get all methods in the given config class
         // and then interrogates those methods for internal data on the config parameters.
@@ -213,7 +217,7 @@ public class ConfigUtils {
         // We have to match our interfaces to the config interface that we're actually using.
         // It's not as simple as using getDeclaredMethods on the Class object because we'll get
         // a LOT of extraneous stuff that we don't care about.
-        for ( Class classInterface : config.getClass().getInterfaces() ){
+        for ( Class<?> classInterface : config.getClass().getInterfaces() ){
 
             // If we have an interface that is a child of the OWNER Config interface, then
             // we must have the right object.
@@ -229,6 +233,11 @@ public class ConfigUtils {
                     Config.Key key = propertyMethod.getAnnotation(Config.Key.class);
                     if (key != null) {
                         propertyName = key.value();
+                    }
+
+                    // Only set properties beginning with the given prefix:
+                    if (!propertyName.startsWith(propertyPrefix)) {
+                        continue;
                     }
 
                     // Get the value of the property into a stringbuilder:
