@@ -50,6 +50,10 @@ workflow CNVSomaticPairWorkflow {
 
     Boolean is_run_oncotator=false
 
+    # docker images
+    String gatk_docker
+    String oncotator_docker="broadinstitute/oncotator:1.9.3.0-eval-gatk-protected"
+
     if (!is_wgs) {
         call CNVTasks.PadTargets {
             input:
