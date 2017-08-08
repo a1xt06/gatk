@@ -5,15 +5,14 @@
 # Pad targets in the target file by the specified amount (this was found to improve sensitivity and specificity)
 task PadTargets {
     File? targets
-    Int padding=250
+    Int? padding
     File gatk_jar
 
     # Runtime parameters
-    Int mem=1
+    Int? mem
     String gatk_docker
-    Int preemptible_attempts=2
-    Int disk_space_gb=40
-
+    Int? preemptible_attempts
+    Int? disk_space_gb
 
     # Determine output filename
     String filename = select_first([targets, ""])
@@ -21,17 +20,17 @@ task PadTargets {
 
     command {
         echo ${filename}; \
-        java -Xmx${mem}g -jar ${gatk_jar} PadTargets \
+        java -Xmx${default=1 mem}g -jar ${gatk_jar} PadTargets \
             --targets ${targets} \
-            --padding ${padding} \
+            --padding ${default=250 padding} \
             --output ${base_filename}.padded.tsv
     }
 
   runtime {
     docker: "${gatk_docker}"
-    memory: "${mem + 1} GB"
-    disks: "local-disk ${disk_space_gb} HDD"
-    preemptible: "${preemptible_attempts}"
+    memory: "${default=2 mem+1} GB"
+    disks: "local-disk ${default=40 disk_space_gb} HDD"
+    preemptible: "${default=2 preemptible_attempts}"
   }
 
     output {
@@ -56,10 +55,10 @@ task CollectCoverage {
     File gatk_jar
 
     # Runtime parameters
-    Int mem=4
+    Int? mem
     String gatk_docker
-    Int preemptible_attempts=2
-    Int disk_space_gb=ceil(size(bam, "GB"))+50
+    Int? preemptible_attempts
+    Int? disk_space_gb
 
     # If no padded target file is input, then do WGS workflow
     Boolean is_wgs = !defined(padded_targets)
@@ -73,7 +72,7 @@ task CollectCoverage {
     command <<<
         if [ ${is_wgs} = true ]
             then
-                java -Xmx${mem}g -jar ${gatk_jar} SparkGenomeReadCounts \
+                java -Xmx${default=4 mem}g -jar ${gatk_jar} SparkGenomeReadCounts \
                     --input ${bam} \
                     --reference ${ref_fasta} \
                     --binsize ${default=10000 wgs_bin_size} \
@@ -83,7 +82,7 @@ task CollectCoverage {
                     $(if [ ${default="true" keep_duplicate_reads} = true ]; then echo " --disableReadFilter NotDuplicateReadFilter "; else echo ""; fi) \
                     --outputFile ${base_filename}.coverage.tsv
             else
-                java -Xmx${mem}g -jar ${gatk_jar} CalculateTargetCoverage \
+                java -Xmx${default=4 mem}g -jar ${gatk_jar} CalculateTargetCoverage \
                     --input ${bam} \
                     --reference ${ref_fasta} \
                     --targets ${padded_targets} \
@@ -102,9 +101,9 @@ task CollectCoverage {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${mem+1} GB"
-        disks: "local-disk ${disk_space_gb} HDD"
-        preemptible: "${preemptible_attempts}"
+        memory: "${default=5 mem+1} GB"
+        disks: "local-disk ${default=ceil(size(bam, 'GB'))+50 disk_space_gb} HDD"
+        preemptible: "${default=2 preemptible_attempts}"
     }
 
     output {
@@ -123,13 +122,13 @@ task AnnotateTargets {
     File gatk_jar
 
     # Runtime parameters
-    Int mem=4
+    Int? mem
     String gatk_docker
-    Int preemptible_attempts=2
-    Int disk_space_gb=ceil(size(ref_fasta, "GB"))+50
+    Int? preemptible_attempts
+    Int? disk_space_gb
 
     command {
-        java -Xmx${mem}g -jar ${gatk_jar} AnnotateTargets \
+        java -Xmx${default=4 mem}g -jar ${gatk_jar} AnnotateTargets \
             --targets ${targets} \
             --reference ${ref_fasta} \
             --output ${entity_id}.annotated.tsv
@@ -137,9 +136,9 @@ task AnnotateTargets {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${mem+1} GB"
-        disks: "local-disk ${disk_space_gb} HDD"
-        preemptible: "${preemptible_attempts}"
+        memory: "${default=5 mem+1} GB"
+        disks: "local-disk ${default=ceil(size(ref_fasta, 'GB'))+50 disk_space_gb} HDD"
+        preemptible: "${default=2 preemptible_attempts}"
     }
 
     output {
@@ -155,13 +154,13 @@ task CorrectGCBias {
     File gatk_jar
 
     # Runtime parameters
-    Int mem=4
+    Int? mem
     String gatk_docker
-    Int preemptible_attempts=2
-    Int disk_space_gb=ceil(size(coverage, "GB"))+50
+    Int? preemptible_attempts
+    Int? disk_space_gb
 
     command {
-        java -Xmx${mem}g -jar ${gatk_jar} CorrectGCBias \
+        java -Xmx${default=4 mem}g -jar ${gatk_jar} CorrectGCBias \
           --input ${coverage} \
           --targets ${annotated_targets} \
           --output ${entity_id}.gc_corrected.tsv
@@ -169,9 +168,9 @@ task CorrectGCBias {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${mem+1} GB"
-        disks: "local-disk ${disk_space_gb} HDD"
-        preemptible: "${preemptible_attempts}"
+        memory: "${default=5 mem+1} GB"
+        disks: "local-disk ${default=ceil(size(coverage, 'GB'))+50 disk_space_gb} HDD"
+        preemptible: "${default=2 preemptible_attempts}"
     }
 
     output {
