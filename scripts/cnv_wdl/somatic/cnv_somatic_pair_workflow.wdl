@@ -109,7 +109,8 @@ workflow CNVSomaticPairWorkflow {
     if (is_run_oncotator) {
         call Oncotate.CNVOncotateCalledSegments as OncotateCalledCNVWorkflow {
             input:
-                 called_file=TumorCopyRatioWorkflow.called_segments
+                 called_file=TumorCopyRatioWorkflow.called_segments,
+                 oncotator_docker=oncotator_docker
         }
     }
 

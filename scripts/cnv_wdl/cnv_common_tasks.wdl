@@ -5,9 +5,15 @@
 # Pad targets in the target file by the specified amount (this was found to improve sensitivity and specificity)
 task PadTargets {
     File? targets
-    Int? padding
+    Int padding=250
     File gatk_jar
-    Int? mem
+
+    # Runtime parameters
+    Int mem=1
+    String gatk_docker
+    Int preemptible_attempts=2
+    Int disk_space_gb=20
+
 
     # Determine output filename
     String filename = select_first([targets, ""])
@@ -15,11 +21,18 @@ task PadTargets {
 
     command {
         echo ${filename}; \
-        java -Xmx${default=1 mem}g -jar ${gatk_jar} PadTargets \
+        java -Xmx${mem}g -jar ${gatk_jar} PadTargets \
             --targets ${targets} \
-            --padding ${default=250 padding} \
+            --padding ${padding} \
             --output ${base_filename}.padded.tsv
     }
+
+  runtime {
+    docker: "${gatk_docker}"
+    memory: ${mem+1} + " GB"
+    disks: "local-disk " + ${disk_space_gb} + " HDD"
+    preemptible: "${preemptible_attempts}"
+  }
 
     output {
         File padded_targets = "${base_filename}.padded.tsv"

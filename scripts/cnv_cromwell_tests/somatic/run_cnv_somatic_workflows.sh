@@ -9,6 +9,8 @@ ln -fs /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/somatic/cnv_somati
 ln -fs /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/somatic/cnv_somatic_allele_fraction_pair_workflow.wdl
 ln -fs /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/somatic/cnv_oncotate.wdl
 
+WORKING_DIR=/home/travis/build/broadinstitute
+
 pushd .
 echo "Building docker without running unit tests... ========="
 cd $WORKING_DIR/gatk
