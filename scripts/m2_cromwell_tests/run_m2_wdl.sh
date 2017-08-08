@@ -10,18 +10,7 @@ set -e
 echo "Building docker image for M2 WDL tests (skipping unit tests)..."
 
 #cd $WORKING_DIR/gatk/scripts/docker/
-#assume Dockerfile is in root
-echo "Building docker without running unit tests... ========="
-cd $WORKING_DIR/gatk
-
-if [ ${TRAVIS_PULL_REQUEST} != false ]; then
-  HASH_TO_USE=FETCH_HEAD
-  sudo bash build_docker.sh  -e FETCH_HEAD -s -u -d $PWD/temp_staging/ -t ${TRAVIS_PULL_REQUEST};
-else
-  HASH_TO_USE=${TRAVIS_COMMIT}
-  sudo bash build_docker.sh  -e ${HASH_TO_USE} -s -u -d $PWD/temp_staging/;
-fi
-echo "Docker build done =========="
+sudo bash $WORKING_DIR/gatk/scripts/build_travis_docker_image.sh $WORKING_DIR
 echo "Putting the newly built docker image into the json parameters"
 cd $WORKING_DIR/gatk/scripts/
 sed -r "s/__M2_DOCKER__/broadinstitute\/gatk\:$HASH_TO_USE/g" m2_cromwell_tests/test_m2_wdl_multi.json >$WORKING_DIR/test_m2_wdl_multi_mod.json

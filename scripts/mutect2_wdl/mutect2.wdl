@@ -380,14 +380,12 @@ task Filter {
         mv filtered.vcf "${output_vcf_name}-filtered.vcf"
         mv filtered.vcf.idx "${output_vcf_name}-filtered.vcf.idx"
     fi
-
-
   }
 
   runtime {
     docker: "${m2_docker}"
     memory: "5 GB"
-    disks: "local-disk " + 500 + " HDD"
+    disks: "local-disk " + 600 + " HDD"
     preemptible: "${preemptible_attempts}"
   }
 
