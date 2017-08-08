@@ -24,3 +24,5 @@ servicekey.json
 
 #Test Generated File
 I_SHOULD_HAVE_BEEN_DELETED
+
+/scripts/cnv_wdl/somatic/cnv_common_tasks.wdl

@@ -153,13 +153,25 @@ task CorrectGCBias {
     File coverage   # This can be either single-sample or multi-sample
     File annotated_targets
     File gatk_jar
-    Int? mem
+
+    # Runtime parameters
+    Int mem=4
+    String gatk_docker
+    Int preemptible_attempts=2
+    Int disk_space_gb=ceil(size(ref_fasta, "GB"))+50
 
     command {
-        java -Xmx${default=4 mem}g -jar ${gatk_jar} CorrectGCBias \
+        java -Xmx${mem}g -jar ${gatk_jar} CorrectGCBias \
           --input ${coverage} \
           --targets ${annotated_targets} \
           --output ${entity_id}.gc_corrected.tsv
+    }
+
+    runtime {
+        docker: "${gatk_docker}"
+        memory: "${mem+1} GB"
+        disks: "local-disk ${disk_space_gb} HDD"
+        preemptible: "${preemptible_attempts}"
     }
 
     output {

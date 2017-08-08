@@ -9,7 +9,7 @@ ln -fs /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/germline/cnv_germl
 ln -fs /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/germline/cnv_germline_single_sample_calling_workflow.wdl
 ln -fs /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/germline/cnv_germline_cohort_calling_workflow.wdl
 
-CROMWELL_JAR="cromwell-0.26.jar"
+CROMWELL_JAR="cromwell-0.28.jar"
 
 # Panel WES
 java -jar ~/${CROMWELL_JAR} run /home/travis/build/broadinstitute/gatk/scripts/cnv_wdl/germline/cnv_germline_panel_creation_workflow.wdl cnv_germline_panel_creation_workflow_wes.json
