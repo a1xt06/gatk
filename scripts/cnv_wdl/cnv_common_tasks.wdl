@@ -12,12 +12,12 @@ task PadTargets {
     Int mem=1
     String gatk_docker
     Int preemptible_attempts=2
-    Int disk_space_gb=20
+    Int disk_space_gb=40
 
 
     # Determine output filename
     String filename = select_first([targets, ""])
-    String base_filename = sub(sub(sub(filename, "gs://", ""), "[/]*.*/", ""), "\\.tsv$", "")
+    String base_filename = basename(filename, ".tsv")
 
     command {
         echo ${filename}; \
@@ -29,8 +29,8 @@ task PadTargets {
 
   runtime {
     docker: "${gatk_docker}"
-    memory: ${mem+1} + " GB"
-    disks: "local-disk " + ${disk_space_gb} + " HDD"
+    memory: "${mem + 1} GB"
+    disks: "local-disk ${disk_space_gb} HDD"
     preemptible: "${preemptible_attempts}"
   }
 
@@ -54,13 +54,18 @@ task CollectCoverage {
     File ref_fasta_fai
     File ref_fasta_dict
     File gatk_jar
-    Int? mem
+
+    # Runtime parameters
+    Int mem=4
+    String gatk_docker
+    Int preemptible_attempts=2
+    Int disk_space_gb=ceil(size(bam, "GB"))+50
 
     # If no padded target file is input, then do WGS workflow
     Boolean is_wgs = !defined(padded_targets)
 
     # Sample name is derived from the bam filename
-    String base_filename = sub(sub(sub(bam, "gs://", ""), "[/]*.*/", ""), "\\.bam$", "")
+    String base_filename = basename(bam, ".bam")
  
     # Output file name depending on type of coverage
     String cov_output_name = if (is_wgs && (select_first([transform, ""])  == "RAW")) then "${base_filename}.coverage.tsv.raw_cov" else "${base_filename}.coverage.tsv"
@@ -68,7 +73,7 @@ task CollectCoverage {
     command <<<
         if [ ${is_wgs} = true ]
             then
-                java -Xmx${default=4 mem}g -jar ${gatk_jar} SparkGenomeReadCounts \
+                java -Xmx${mem}g -jar ${gatk_jar} SparkGenomeReadCounts \
                     --input ${bam} \
                     --reference ${ref_fasta} \
                     --binsize ${default=10000 wgs_bin_size} \
@@ -78,7 +83,7 @@ task CollectCoverage {
                     $(if [ ${default="true" keep_duplicate_reads} = true ]; then echo " --disableReadFilter NotDuplicateReadFilter "; else echo ""; fi) \
                     --outputFile ${base_filename}.coverage.tsv
             else
-                java -Xmx${default=4 mem}g -jar ${gatk_jar} CalculateTargetCoverage \
+                java -Xmx${mem}g -jar ${gatk_jar} CalculateTargetCoverage \
                     --input ${bam} \
                     --reference ${ref_fasta} \
                     --targets ${padded_targets} \
@@ -95,6 +100,13 @@ task CollectCoverage {
         fi
     >>>
 
+    runtime {
+        docker: "${gatk_docker}"
+        memory: "${mem+1} GB"
+        disks: "local-disk ${disk_space_gb} HDD"
+        preemptible: "${preemptible_attempts}"
+    }
+
     output {
         String entity_id = base_filename
         File coverage = cov_output_name 
@@ -109,13 +121,25 @@ task AnnotateTargets {
     File ref_fasta_fai
     File ref_fasta_dict
     File gatk_jar
-    Int? mem
+
+    # Runtime parameters
+    Int mem=4
+    String gatk_docker
+    Int preemptible_attempts=2
+    Int disk_space_gb=ceil(size(ref_fasta, "GB"))+50
 
     command {
-        java -Xmx${default=4 mem}g -jar ${gatk_jar} AnnotateTargets \
+        java -Xmx${mem}g -jar ${gatk_jar} AnnotateTargets \
             --targets ${targets} \
             --reference ${ref_fasta} \
             --output ${entity_id}.annotated.tsv
+    }
+
+    runtime {
+        docker: "${gatk_docker}"
+        memory: "${mem+1} GB"
+        disks: "local-disk ${disk_space_gb} HDD"
+        preemptible: "${preemptible_attempts}"
     }
 
     output {
