@@ -26,7 +26,7 @@ echo "Docker build done =========="
 popd
 
 echo "Inserting docker image into json ========"
-CNV_CROMWELL_TEST_DIR="cnv_cromwell_tests/somatic/"
+CNV_CROMWELL_TEST_DIR="${WORKING_DIR}/gatk/scripts/cnv_cromwell_tests/somatic/"
 sed -r "s/__GATK_DOCKER__/broadinstitute\/gatk\:$HASH_TO_USE/g" ${CNV_CROMWELL_TEST_DIR}/cnv_somatic_pair_wes_tumor-only_workflow.json >cnv_somatic_pair_wes_tumor-only_workflow_mod.json
 sed -r "s/__GATK_DOCKER__/broadinstitute\/gatk\:$HASH_TO_USE/g" ${CNV_CROMWELL_TEST_DIR}/cnv_somatic_pair_wgs_tumor-only_workflow.json >cnv_somatic_pair_wgs_tumor-only_workflow_mod.json
 sed -r "s/__GATK_DOCKER__/broadinstitute\/gatk\:$HASH_TO_USE/g" ${CNV_CROMWELL_TEST_DIR}/cnv_somatic_pair_wes_workflow.json >cnv_somatic_pair_wes_workflow_mod.json
