@@ -158,7 +158,7 @@ task CorrectGCBias {
     Int mem=4
     String gatk_docker
     Int preemptible_attempts=2
-    Int disk_space_gb=ceil(size(ref_fasta, "GB"))+50
+    Int disk_space_gb=ceil(size(coverage, "GB"))+50
 
     command {
         java -Xmx${mem}g -jar ${gatk_jar} CorrectGCBias \

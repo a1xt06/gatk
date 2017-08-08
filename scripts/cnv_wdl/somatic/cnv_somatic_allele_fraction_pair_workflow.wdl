@@ -31,6 +31,8 @@ workflow CNVSomaticAlleleFractionPairWorkflow {
     # If WGS, different segment-merging parameters will be used for ACNV
     Boolean is_wgs
 
+    String gatk_docker
+
     call GetBayesianHetCoverage {
         input:
             common_sites = common_sites,
@@ -41,7 +43,8 @@ workflow CNVSomaticAlleleFractionPairWorkflow {
             ref_fasta = ref_fasta,
             ref_fasta_fai = ref_fasta_fai,
             ref_fasta_dict = ref_fasta_dict,
-            gatk_jar = gatk_jar
+            gatk_jar = gatk_jar,
+            gatk_docker = gatk_docker
     }
 
     call AllelicCNV {
@@ -51,7 +54,8 @@ workflow CNVSomaticAlleleFractionPairWorkflow {
             tn_coverage = tumor_tn_coverage,
             called_segments = tumor_called_segments,
             is_wgs = is_wgs,
-            gatk_jar = gatk_jar
+            gatk_jar = gatk_jar,
+            gatk_docker = gatk_docker
     }
 
     call PlotACNVResults {
@@ -61,7 +65,8 @@ workflow CNVSomaticAlleleFractionPairWorkflow {
             tn_coverage = tumor_tn_coverage,
             acnv_segments = AllelicCNV.acnv_segments,
             ref_fasta_dict = ref_fasta_dict,
-            gatk_jar = gatk_jar
+            gatk_jar = gatk_jar,
+            gatk_docker = gatk_docker
     }
 
     call ConvertACNVResults {
@@ -70,7 +75,8 @@ workflow CNVSomaticAlleleFractionPairWorkflow {
             hets = GetBayesianHetCoverage.tumor_hets,
             tn_coverage = tumor_tn_coverage,
             acnv_segments = AllelicCNV.acnv_segments,
-            gatk_jar = gatk_jar
+            gatk_jar = gatk_jar,
+            gatk_docker = gatk_docker
     }
 
     output {
