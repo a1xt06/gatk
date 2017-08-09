@@ -20,17 +20,17 @@ task PadTargets {
 
     command <<<
         echo ${filename}; \
-        java -Xmx${default=1 mem}g -jar ${gatk_jar} PadTargets \
+        java -Xmx${default="1" mem}g -jar ${gatk_jar} PadTargets \
             --targets ${targets} \
-            --padding ${default=250 padding} \
+            --padding ${default="250" padding} \
             --output ${base_filename}.padded.tsv
     >>>
 
     runtime {
         docker: "${gatk_docker}"
-        memory: ${default=2 mem+1} + " GB"
-        disks: "local-disk " + ${default=40 disk_space_gb} + " HDD"
-        preemptible: ${default=2 preemptible_attempts}
+        memory: "${default='2' mem+1} GB"
+        disks: "local-disk  ${default='40' disk_space_gb} HDD"
+        preemptible: "${default='2' preemptible_attempts}"
     }
 
     output {
