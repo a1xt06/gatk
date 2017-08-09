@@ -28,9 +28,9 @@ task PadTargets {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default='2' mem+1} GB"
-        disks: "local-disk  ${default='40' disk_space_gb} HDD"
-        preemptible: "${default='2' preemptible_attempts}"
+        memory: select_first([mem+1, 2]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, 40]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
