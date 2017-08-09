@@ -32,8 +32,6 @@ workflow CNVSomaticAlleleFractionPairWorkflow {
     # If WGS, different segment-merging parameters will be used for ACNV
     Boolean is_wgs
 
-    String gatk_docker
-
     call GetBayesianHetCoverage {
         input:
             common_sites = common_sites,
