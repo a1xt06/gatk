@@ -158,7 +158,7 @@ public final class DiscoverVariantsFromContigAlignmentsSAMSpark extends GATKSpar
             } else {
                 parsedAlignments = unSplitAIList.collect(Collectors.toList());
             }
-            return new AlignedContig(primaryAlignment.getReadName(), contigSequence, parsedAlignments);
+            return new AlignedContig(primaryAlignment.getReadName(), contigSequence, parsedAlignments, false);
         }
     }
 
@@ -216,7 +216,8 @@ public final class DiscoverVariantsFromContigAlignmentsSAMSpark extends GATKSpar
                                                  final Broadcast<ReferenceMultiSource> broadcastReference)
             throws IOException {
         return AnnotatedVariantProducer
-                .produceAnnotatedVcFromNovelAdjacency(novelAdjacency,
+                .produceAnnotatedVcFromInferredTypeAndRefLocations(novelAdjacency.leftJustifiedLeftRefLoc,
+                        novelAdjacency.leftJustifiedRightRefLoc.getStart(), novelAdjacency.complication,
                         inferredType, chimericAlignments,
                         broadcastReference);
     }

@@ -68,10 +68,6 @@ public class ChimericAlignment {
 
     final List<String> insertionMappings;
 
-    enum StrandSwitch {
-        NO_SWITCH, FORWARD_TO_REVERSE, REVERSE_TO_FORWARD;
-    }
-
     public List<AlignmentInterval> getAlignmentIntervals() {
         return Arrays.asList(regionWithLowerCoordOnContig, regionWithHigherCoordOnContig);
     }
@@ -96,21 +92,11 @@ public class ChimericAlignment {
     /**
      * Construct a new ChimericAlignment from two alignment intervals.
      * Assumes {@code intervalWithLowerCoordOnContig} has a lower {@link AlignmentInterval#startInAssembledContig}
-     * than {@code regionWithHigherCoordOnContig},
-     * and input {@link AlignmentInterval}s' ref span are NOT completely enclosed in the other.
+     * than {@code regionWithHigherCoordOnContig}.
      */
     @VisibleForTesting
     public ChimericAlignment(final AlignmentInterval intervalWithLowerCoordOnContig, final AlignmentInterval intervalWithHigherCoordOnContig,
                              final List<String> insertionMappings, final String sourceContigName) {
-
-        // check if one of two input intervals consumes the other in their ref span
-        final boolean oneRefSpanIsEnclosed =
-                intervalWithLowerCoordOnContig.referenceSpan.contains(intervalWithHigherCoordOnContig.referenceSpan)
-                        ||
-                        intervalWithHigherCoordOnContig.referenceSpan.contains(intervalWithLowerCoordOnContig.referenceSpan);
-        Utils.validateArg(!oneRefSpanIsEnclosed,
-                "one alignment region contains the other, which is wrong " +
-                        intervalWithLowerCoordOnContig.toPackedString() + intervalWithHigherCoordOnContig.toPackedString());
 
         this.sourceContigName = sourceContigName;
 
@@ -211,10 +197,10 @@ public class ChimericAlignment {
 
     @VisibleForTesting
     public static StrandSwitch determineStrandSwitch(final AlignmentInterval first, final AlignmentInterval second) {
-        if (first.forwardStrand == second.forwardStrand) {
+        if (first.isForwardStrand == second.isForwardStrand) {
             return StrandSwitch.NO_SWITCH;
         } else {
-            return first.forwardStrand ? StrandSwitch.FORWARD_TO_REVERSE : StrandSwitch.REVERSE_TO_FORWARD;
+            return first.isForwardStrand ? StrandSwitch.FORWARD_TO_REVERSE : StrandSwitch.REVERSE_TO_FORWARD;
         }
     }
 
@@ -249,7 +235,7 @@ public class ChimericAlignment {
         return sameChromosome
                 &&
                 (strandSwitch!=StrandSwitch.NO_SWITCH
-                        || involvesReferenceIntervalSwitch == !regionWithLowerCoordOnContig.forwardStrand);
+                        || involvesReferenceIntervalSwitch == !regionWithLowerCoordOnContig.isForwardStrand);
     }
 
     /**
@@ -263,10 +249,17 @@ public class ChimericAlignment {
                                                  final boolean involvesReferenceIntervalSwitch) {
 
         if (strandSwitch == StrandSwitch.NO_SWITCH) {
-            return regionWithLowerCoordOnContig.forwardStrand && regionWithHigherCoordOnContig.forwardStrand;
+            return regionWithLowerCoordOnContig.isForwardStrand && regionWithHigherCoordOnContig.isForwardStrand;
         } else {
             return !involvesReferenceIntervalSwitch;
         }
+    }
+
+    public static boolean isNotSimpleTranslocation(final ChimericAlignment chimericAlignment) {
+        return isNotSimpleTranslocation(chimericAlignment.regionWithLowerCoordOnContig,
+                chimericAlignment.regionWithHigherCoordOnContig, chimericAlignment.strandSwitch,
+                involvesRefPositionSwitch(chimericAlignment.regionWithLowerCoordOnContig,
+                        chimericAlignment.regionWithHigherCoordOnContig));
     }
 
     Tuple2<SimpleInterval, SimpleInterval> getCoordSortedReferenceSpans() {

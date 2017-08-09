@@ -131,7 +131,7 @@ final class BreakpointComplications {
                         ChimericAlignment.involvesRefPositionSwitch(firstAlignmentInterval, secondAlignmentInterval));
 
         // TODO: 12/5/16 simple translocation, don't tackle yet
-        if (chimericAlignment.strandSwitch!= ChimericAlignment.StrandSwitch.NO_SWITCH) { // the case involves an inversion
+        if (chimericAlignment.strandSwitch!= StrandSwitch.NO_SWITCH) { // the case involves an inversion
             // TODO: 12/5/16 duplication detection to be done for inversion alleles
             initForSimpleInversion(firstAlignmentInterval, secondAlignmentInterval, contigSeq);
         } else if (isNotSimpleTranslocation) {
@@ -200,7 +200,7 @@ final class BreakpointComplications {
         dupSeqRepeatNumOnRef      = 1;
         dupSeqRepeatNumOnCtg      = 2;
         cigarStringsForDupSeqOnCtg = new ArrayList<>(2);
-        if (firstContigRegion.forwardStrand) {
+        if (firstContigRegion.isForwardStrand) {
             cigarStringsForDupSeqOnCtg.add( TextCigarCodec.encode(extractCigarForTandup(firstContigRegion, r1e, r2b)) );
             cigarStringsForDupSeqOnCtg.add( TextCigarCodec.encode(extractCigarForTandup(secondContigRegion, r1e, r2b)) );
         } else {
@@ -277,7 +277,7 @@ final class BreakpointComplications {
         final List<CigarElement> result = new ArrayList<>(elementList.size());
         final int refStart = contigRegion.referenceSpan.getStart(),
                 refEnd = contigRegion.referenceSpan.getEnd();
-        final boolean isForwardStrand = contigRegion.forwardStrand;
+        final boolean isForwardStrand = contigRegion.isForwardStrand;
         boolean initiatedCollection = false;
         int refPos = isForwardStrand ? refStart : refEnd;
         for(final CigarElement cigarElement : elementList) {
