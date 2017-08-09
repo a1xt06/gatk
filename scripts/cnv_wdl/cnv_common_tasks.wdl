@@ -101,9 +101,9 @@ task CollectCoverage {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=ceil(size(bam, 'GB'))+50 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, ceil(size(bam, "GB"))+50]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
@@ -136,9 +136,9 @@ task AnnotateTargets {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=ceil(size(ref_fasta, 'GB'))+50 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, ceil(size(ref_fasta, "GB"))+50]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
@@ -168,9 +168,9 @@ task CorrectGCBias {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=ceil(size(coverage, 'GB'))+50 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, ceil(size(coverage, "GB"))+50]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
