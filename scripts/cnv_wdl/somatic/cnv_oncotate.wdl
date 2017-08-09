@@ -5,7 +5,7 @@ workflow CNVOncotateCalledSegments {
     String? oncotator_output_type
     String? additional_args
 
-    call OncotateCnvSegments {
+    call OncotateSegments {
         input:
             called_file=called_file,
             mem=mem,
@@ -19,7 +19,7 @@ workflow CNVOncotateCalledSegments {
     }
 }
 
-task OncotateCnvSegments {
+task OncotateSegments {
     File called_file
     Int mem=2
     String oncotator_docker="broadinstitute/oncotator:1.9.3.0-eval-gatk-protected"
