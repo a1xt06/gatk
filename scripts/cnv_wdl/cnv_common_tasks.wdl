@@ -26,12 +26,12 @@ task PadTargets {
             --output ${base_filename}.padded.tsv
     }
 
-  runtime {
-    docker: "${gatk_docker}"
-    memory: "${default=2 mem+1} GB"
-    disks: "local-disk ${default=40 disk_space_gb} HDD"
-    preemptible: "${default=2 preemptible_attempts}"
-  }
+    runtime {
+        docker: "${gatk_docker}"
+        memory: "${default=2 mem+1} GB"
+        disks: "local-disk ${default=40 disk_space_gb} HDD"
+        preemptible: "${default=2 preemptible_attempts}"
+    }
 
     output {
         File padded_targets = "${base_filename}.padded.tsv"
