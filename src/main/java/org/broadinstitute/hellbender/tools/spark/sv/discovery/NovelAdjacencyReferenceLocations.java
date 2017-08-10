@@ -64,10 +64,10 @@ public class NovelAdjacencyReferenceLocations {
     // TODO: 12/12/16 again, does not work for translocation
     @VisibleForTesting
     static EndConnectionType determineEndConnectionType(final ChimericAlignment chimericAlignment) {
-        if (chimericAlignment.regionWithLowerCoordOnContig.forwardStrand == chimericAlignment.regionWithHigherCoordOnContig.forwardStrand) {
+        if (chimericAlignment.regionWithLowerCoordOnContig.isForwardStrand == chimericAlignment.regionWithHigherCoordOnContig.isForwardStrand) {
             return FIVE_TO_THREE;
         } else {
-            return chimericAlignment.regionWithLowerCoordOnContig.forwardStrand ? FIVE_TO_FIVE : THREE_TO_THREE;
+            return chimericAlignment.regionWithLowerCoordOnContig.isForwardStrand ? FIVE_TO_FIVE : THREE_TO_THREE;
         }
     }
 

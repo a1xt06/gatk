@@ -81,17 +81,17 @@ public class ContigAlignerTest extends BaseTest {
 
         final AlignmentInterval firstAlignmentIntervalForContig_9 = alignmentIntervalsForContig9.get(0);
         Assert.assertEquals(firstAlignmentIntervalForContig_9.referenceSpan, new SimpleInterval("21", 27373209, 27374158));
-        Assert.assertTrue(firstAlignmentIntervalForContig_9.forwardStrand);
+        Assert.assertTrue(firstAlignmentIntervalForContig_9.isForwardStrand);
         Assert.assertEquals(firstAlignmentIntervalForContig_9.mapQual, 60);
 
         final AlignmentInterval secondAlignmentIntervalForContig_9 = alignmentIntervalsForContig9.get(1);
         Assert.assertEquals(secondAlignmentIntervalForContig_9.referenceSpan, new SimpleInterval("21", 27374159, 27374706));
-        Assert.assertFalse(secondAlignmentIntervalForContig_9.forwardStrand);
+        Assert.assertFalse(secondAlignmentIntervalForContig_9.isForwardStrand);
         Assert.assertEquals(secondAlignmentIntervalForContig_9.mapQual, 60);
 
         final AlignmentInterval thirdAlignmentIntervalForContig_9 = alignmentIntervalsForContig9.get(2);
         Assert.assertEquals(thirdAlignmentIntervalForContig_9.referenceSpan, new SimpleInterval("21", 27374701, 27375218));
-        Assert.assertTrue(thirdAlignmentIntervalForContig_9.forwardStrand);
+        Assert.assertTrue(thirdAlignmentIntervalForContig_9.isForwardStrand);
         Assert.assertEquals(thirdAlignmentIntervalForContig_9.mapQual, 60);
     }
 
@@ -117,14 +117,14 @@ public class ContigAlignerTest extends BaseTest {
 
         final AlignmentInterval firstAlignmentIntervalForContig_3 = alignmentIntervalsForContig_3.get(0);
         Assert.assertEquals(firstAlignmentIntervalForContig_3.referenceSpan, new SimpleInterval("20", 1388956, 1389146));
-        Assert.assertTrue(firstAlignmentIntervalForContig_3.forwardStrand);
+        Assert.assertTrue(firstAlignmentIntervalForContig_3.isForwardStrand);
         Assert.assertEquals(firstAlignmentIntervalForContig_3.mapQual, 60);
         Assert.assertEquals(firstAlignmentIntervalForContig_3.startInAssembledContig, 1);
         Assert.assertEquals(firstAlignmentIntervalForContig_3.endInAssembledContig, 191);
 
         final AlignmentInterval secondAlignmentIntervalForContig_3 = alignmentIntervalsForContig_3.get(1);
         Assert.assertEquals(secondAlignmentIntervalForContig_3.referenceSpan, new SimpleInterval("20", 1390815, 1390938));
-        Assert.assertTrue(secondAlignmentIntervalForContig_3.forwardStrand);
+        Assert.assertTrue(secondAlignmentIntervalForContig_3.isForwardStrand);
         Assert.assertEquals(secondAlignmentIntervalForContig_3.mapQual, 60);
         Assert.assertEquals(secondAlignmentIntervalForContig_3.startInAssembledContig, 189);
         Assert.assertEquals(secondAlignmentIntervalForContig_3.endInAssembledContig, 312);
@@ -154,14 +154,14 @@ public class ContigAlignerTest extends BaseTest {
 
         final AlignmentInterval firstAlignmentIntervalForContig_20 = alignmentIntervalsForContig_20.get(0);
         Assert.assertEquals(firstAlignmentIntervalForContig_20.referenceSpan, new SimpleInterval("20", 1000000, 1000099));
-        Assert.assertTrue(firstAlignmentIntervalForContig_20.forwardStrand);
+        Assert.assertTrue(firstAlignmentIntervalForContig_20.isForwardStrand);
         Assert.assertEquals(firstAlignmentIntervalForContig_20.mapQual, 60);
         Assert.assertEquals(firstAlignmentIntervalForContig_20.startInAssembledContig, 1);
         Assert.assertEquals(firstAlignmentIntervalForContig_20.endInAssembledContig, 100);
 
         final AlignmentInterval secondAlignmentIntervalForContig_20 = alignmentIntervalsForContig_20.get(1);
         Assert.assertEquals(secondAlignmentIntervalForContig_20.referenceSpan, new SimpleInterval("20", 5000002, 5000101));
-        Assert.assertTrue(secondAlignmentIntervalForContig_20.forwardStrand);
+        Assert.assertTrue(secondAlignmentIntervalForContig_20.isForwardStrand);
         Assert.assertEquals(secondAlignmentIntervalForContig_20.mapQual, 60);
         Assert.assertEquals(secondAlignmentIntervalForContig_20.startInAssembledContig, 101);
         Assert.assertEquals(secondAlignmentIntervalForContig_20.endInAssembledContig, 200);

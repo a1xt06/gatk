@@ -211,10 +211,10 @@ public class ChimericAlignment {
 
     @VisibleForTesting
     public static StrandSwitch determineStrandSwitch(final AlignmentInterval first, final AlignmentInterval second) {
-        if (first.forwardStrand == second.forwardStrand) {
+        if (first.isForwardStrand == second.isForwardStrand) {
             return StrandSwitch.NO_SWITCH;
         } else {
-            return first.forwardStrand ? StrandSwitch.FORWARD_TO_REVERSE : StrandSwitch.REVERSE_TO_FORWARD;
+            return first.isForwardStrand ? StrandSwitch.FORWARD_TO_REVERSE : StrandSwitch.REVERSE_TO_FORWARD;
         }
     }
 
@@ -249,7 +249,7 @@ public class ChimericAlignment {
         return sameChromosome
                 &&
                 (strandSwitch!=StrandSwitch.NO_SWITCH
-                        || involvesReferenceIntervalSwitch == !regionWithLowerCoordOnContig.forwardStrand);
+                        || involvesReferenceIntervalSwitch == !regionWithLowerCoordOnContig.isForwardStrand);
     }
 
     /**
@@ -263,7 +263,7 @@ public class ChimericAlignment {
                                                  final boolean involvesReferenceIntervalSwitch) {
 
         if (strandSwitch == StrandSwitch.NO_SWITCH) {
-            return regionWithLowerCoordOnContig.forwardStrand && regionWithHigherCoordOnContig.forwardStrand;
+            return regionWithLowerCoordOnContig.isForwardStrand && regionWithHigherCoordOnContig.isForwardStrand;
         } else {
             return !involvesReferenceIntervalSwitch;
         }

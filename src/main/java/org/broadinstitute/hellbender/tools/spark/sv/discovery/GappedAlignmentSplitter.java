@@ -69,8 +69,8 @@ public final class GappedAlignmentSplitter {
         final CigarElement hardClippingAtBeginningMaybeNull = hardClippingAtBeginning==0 ? null : new CigarElement(hardClippingAtBeginning, CigarOperator.H);
         int contigIntervalStart = 1 + clippedNBasesFromStart;
         // we are walking along the contig following the cigar, which indicates that we might be walking backwards on the reference if oneRegion.forwardStrand==false
-        int refBoundary1stInTheDirectionOfContig = oneRegion.forwardStrand ? oneRegion.referenceSpan.getStart() :
-                oneRegion.referenceSpan.getEnd();
+        int refBoundary1stInTheDirectionOfContig = oneRegion.isForwardStrand ? oneRegion.referenceSpan.getStart()
+                                                                             : oneRegion.referenceSpan.getEnd();
         for (final CigarElement cigarElement : cigarElements) {
             final CigarOperator op = cigarElement.getOperator();
             final int operatorLen = cigarElement.getLength();
@@ -92,7 +92,7 @@ public final class GappedAlignmentSplitter {
 
                     // task 1: infer reference interval taking into account of strand
                     final SimpleInterval referenceInterval;
-                    if (oneRegion.forwardStrand) {
+                    if (oneRegion.isForwardStrand) {
                         referenceInterval = new SimpleInterval(oneRegion.referenceSpan.getContig(),
                                 refBoundary1stInTheDirectionOfContig,
                                 refBoundary1stInTheDirectionOfContig + (memoryCigar.getReferenceLength()-1));
@@ -113,9 +113,9 @@ public final class GappedAlignmentSplitter {
                     final Cigar cigarForNewAlignmentInterval = new Cigar(cigarMemoryList);
 
                     final AlignmentInterval split = new AlignmentInterval(referenceInterval, contigIntervalStart, contigIntervalEnd,
-                            cigarForNewAlignmentInterval, oneRegion.forwardStrand, originalMapQ,
+                            cigarForNewAlignmentInterval, oneRegion.isForwardStrand, originalMapQ,
                             DiscoverVariantsFromContigsAlignmentsSparkArgumentCollection.ARTIFICIAL_MISMATCH,
-                            oneRegion.alnScore, true);
+                            oneRegion.alnScore, true, false);
 
                     result.add(split);
 
@@ -129,8 +129,8 @@ public final class GappedAlignmentSplitter {
 
                     // update pointers into reference and contig
                     final int refBoundaryAdvance = op.consumesReadBases() ? memoryCigar.getReferenceLength()
-                            : memoryCigar.getReferenceLength() + operatorLen;
-                    refBoundary1stInTheDirectionOfContig += oneRegion.forwardStrand ? refBoundaryAdvance : -refBoundaryAdvance;
+                                                                          : memoryCigar.getReferenceLength() + operatorLen;
+                    refBoundary1stInTheDirectionOfContig += oneRegion.isForwardStrand ? refBoundaryAdvance : -refBoundaryAdvance;
                     contigIntervalStart += op.consumesReadBases() ? effectiveReadLen + operatorLen : effectiveReadLen;
 
                     break;
@@ -145,7 +145,7 @@ public final class GappedAlignmentSplitter {
         }
 
         final SimpleInterval lastReferenceInterval;
-        if (oneRegion.forwardStrand) {
+        if (oneRegion.isForwardStrand) {
             lastReferenceInterval =  new SimpleInterval(oneRegion.referenceSpan.getContig(), refBoundary1stInTheDirectionOfContig,
                     oneRegion.referenceSpan.getEnd());
         } else {
@@ -157,9 +157,9 @@ public final class GappedAlignmentSplitter {
         int clippedNBasesFromEnd = SvCigarUtils.getNumClippedBases(false, cigarElements);
         result.add(new AlignmentInterval(lastReferenceInterval,
                 contigIntervalStart, unclippedContigLen-clippedNBasesFromEnd, lastForwardStrandCigar,
-                oneRegion.forwardStrand, originalMapQ,
+                oneRegion.isForwardStrand, originalMapQ,
                 DiscoverVariantsFromContigsAlignmentsSparkArgumentCollection.ARTIFICIAL_MISMATCH,
-                oneRegion.alnScore, true));
+                oneRegion.alnScore, true, false));
 
 
         return result;
