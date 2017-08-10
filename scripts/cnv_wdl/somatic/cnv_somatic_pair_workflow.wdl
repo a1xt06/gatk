@@ -59,7 +59,8 @@ workflow CNVSomaticPairWorkflow {
             input:
                 # This is a bit of a hack.  The task will fail if targets is not defined when it gets here.
                 targets = select_first([targets, ""]),
-                gatk_jar = gatk_jar
+                gatk_jar = gatk_jar,
+                gatk_docker = gatk_docker
         }
     }
 
