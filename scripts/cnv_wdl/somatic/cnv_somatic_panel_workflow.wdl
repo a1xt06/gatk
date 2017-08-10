@@ -129,9 +129,9 @@ task CombineReadCounts {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=100 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, 100]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
@@ -165,9 +165,9 @@ task CreatePanelOfNormals {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=150 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, 150]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {

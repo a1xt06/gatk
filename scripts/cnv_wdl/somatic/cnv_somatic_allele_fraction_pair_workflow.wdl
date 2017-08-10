@@ -141,9 +141,9 @@ task GetBayesianHetCoverage {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=ceil(size(tumor_bam, 'GB')*2.0)+50 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, ceil(size(tumor_bam, "GB")*2.0)+50]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
@@ -219,9 +219,9 @@ task AllelicCNV {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=75 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, 75]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
@@ -261,9 +261,9 @@ task PlotACNVResults {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=75 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, 75]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {
@@ -300,9 +300,9 @@ task ConvertACNVResults {
 
     runtime {
         docker: "${gatk_docker}"
-        memory: "${default=5 mem+1} GB"
-        disks: "local-disk ${default=75 disk_space_gb} HDD"
-        preemptible: "${default=2 preemptible_attempts}"
+        memory: select_first([mem, 5]) + " GB"
+        disks: "local-disk " + select_first([disk_space_gb, 75]) + " HDD"
+        preemptible: select_first([preemptible_attempts, 2])
     }
 
     output {

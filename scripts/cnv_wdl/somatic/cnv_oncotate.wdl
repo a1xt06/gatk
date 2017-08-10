@@ -21,7 +21,7 @@ workflow CNVOncotateCalledSegments {
 
 task OncotateSegments {
     File called_file
-    Int mem=2
+    Int mem=3
     String oncotator_docker="broadinstitute/oncotator:1.9.3.0-eval-gatk-protected"
     String oncotator_output_type="SIMPLE_TSV"
     String additional_args=""
