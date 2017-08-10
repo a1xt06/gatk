@@ -23,7 +23,6 @@ public final class AlignedContig {
     public final OptionalDouble score;
     public final String contigName;
     public final byte[] contigSequence;
-    public final int definedContigSequenceStart;
     public final List<AlignedAssembly.AlignmentInterval> alignmentIntervals;
 
     public AlignedContig(final String contigName, final byte[] contigSequence,
@@ -37,7 +36,6 @@ public final class AlignedContig {
         this.contigSequence = Utils.nonNull(contigSequence, "the contig sequence cannot be null");
         this.alignmentIntervals = alignmentIntervals;
         this.score = score == null ? OptionalDouble.empty() : OptionalDouble.of(score);
-        this.definedContigSequenceStart = firstNonZero(contigSequence);
     }
 
     private static int firstNonZero(final byte[] contigSequence) {
@@ -69,7 +67,6 @@ public final class AlignedContig {
         for (int b = 0; b < nBases; ++b) {
             contigSequence[b] = input.readByte();
         }
-        definedContigSequenceStart = firstNonZero(contigSequence);
 
         final int nAlignments = input.readInt();
         alignmentIntervals = new ArrayList<>(nAlignments);
