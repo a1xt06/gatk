@@ -4,8 +4,8 @@ import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import org.broadinstitute.hellbender.utils.Utils;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,17 +23,30 @@ public final class AlignedContig {
     public final OptionalDouble score;
     public final String contigName;
     public final byte[] contigSequence;
+    public final int definedContigSequenceStart;
     public final List<AlignedAssembly.AlignmentInterval> alignmentIntervals;
 
-    public AlignedContig(final String contigName, final byte[] contigSequence, final List<AlignedAssembly.AlignmentInterval> alignmentIntervals) {
+    public AlignedContig(final String contigName, final byte[] contigSequence,
+                         final List<AlignedAssembly.AlignmentInterval> alignmentIntervals) {
         this (contigName, contigSequence, alignmentIntervals, null);
     }
 
-    public AlignedContig(final String contigName, final byte[] contigSequence, final List<AlignedAssembly.AlignmentInterval> alignmentIntervals, final Double score) {
-        this.contigName = contigName;
-        this.contigSequence = contigSequence;
+    public AlignedContig(final String contigName, final byte[] contigSequence,
+                         final List<AlignedAssembly.AlignmentInterval> alignmentIntervals, final Double score) {
+        this.contigName = Utils.nonNull(contigName, "null names are not allowed");
+        this.contigSequence = Utils.nonNull(contigSequence, "the contig sequence cannot be null");
         this.alignmentIntervals = alignmentIntervals;
         this.score = score == null ? OptionalDouble.empty() : OptionalDouble.of(score);
+        this.definedContigSequenceStart = firstNonZero(contigSequence);
+    }
+
+    private static int firstNonZero(final byte[] contigSequence) {
+        for (int i = 0; i < contigSequence.length; i++) {
+            if (contigSequence[i] != 0) {
+                return i;
+            }
+        }
+        return contigSequence.length;
     }
 
     public double getScore() {
@@ -56,6 +69,7 @@ public final class AlignedContig {
         for (int b = 0; b < nBases; ++b) {
             contigSequence[b] = input.readByte();
         }
+        definedContigSequenceStart = firstNonZero(contigSequence);
 
         final int nAlignments = input.readInt();
         alignmentIntervals = new ArrayList<>(nAlignments);
