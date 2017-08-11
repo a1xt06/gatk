@@ -6,7 +6,7 @@
 task PadTargets {
     File targets
     Int? padding
-    File gatk_jar
+    String gatk_jar
 
     # Runtime parameters
     Int? mem
@@ -52,7 +52,7 @@ task CollectCoverage {
     File ref_fasta
     File ref_fasta_fai
     File ref_fasta_dict
-    File gatk_jar
+    String gatk_jar
 
     # Runtime parameters
     Int? mem
@@ -119,7 +119,7 @@ task AnnotateTargets {
     File ref_fasta
     File ref_fasta_fai
     File ref_fasta_dict
-    File gatk_jar
+    String gatk_jar
 
     # Runtime parameters
     Int? mem
@@ -151,7 +151,7 @@ task CorrectGCBias {
     String entity_id
     File coverage   # This can be either single-sample or multi-sample
     File annotated_targets
-    File gatk_jar
+    String gatk_jar
 
     # Runtime parameters
     Int? mem

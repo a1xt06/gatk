@@ -112,7 +112,7 @@ task CombineReadCounts {
     String combined_entity_id
     Array[File]+ coverage_file_list
     Int? max_open_files
-    File gatk_jar
+    String gatk_jar
 
     # Runtime parameters
     Int? mem
@@ -144,7 +144,7 @@ task CreatePanelOfNormals {
     String pon_entity_id
     File corrected_coverage
     Boolean? no_qc
-    File gatk_jar
+    String gatk_jar
 
     # Runtime parameters
     Int? mem
