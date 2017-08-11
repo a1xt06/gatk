@@ -9,6 +9,7 @@ import htsjdk.samtools.Cigar;
 import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.TextCigarCodec;
+import org.broadinstitute.hellbender.tools.spark.sv.utils.SVInterval;
 import org.broadinstitute.hellbender.tools.spark.sv.utils.SvCigarUtils;
 import org.broadinstitute.hellbender.utils.SimpleInterval;
 import org.broadinstitute.hellbender.utils.Utils;
@@ -127,6 +128,28 @@ public final class AlignmentInterval {
                 Math.min(one.endInAssembledContig + 1, two.endInAssembledContig + 1)
                         - Math.max(one.startInAssembledContig, two.startInAssembledContig)
         );
+    }
+
+    /**
+     * Computes overlap between reference span of the two input alignment intervals.
+     * Assumes that {@code one} has a
+     * @param one
+     * @param two
+     * @return
+     */
+    static int overlapOnRefSpan(final AlignmentInterval one, final AlignmentInterval two) {
+        Utils.validateArg(AlignedContig.sortAlignments().compare(one, two) < 0,
+                "assumption that first input AI reside a place earlier than second input is violated: \n" +
+                        one.toPackedString() + "\n" + two.toPackedString());
+
+        if ( !one.referenceSpan.getContig().equals(two.referenceSpan.getContig()) ) return  0;
+
+        // dummy number for chr to be used in constructing SVInterval, since input CA has 2 AI & both map to the same chr
+        final int dummyChr = 1;
+        final SVInterval intOne = new SVInterval(dummyChr, one.referenceSpan.getStart(), one.referenceSpan.getEnd() + 1),
+                         intTwo = new SVInterval(dummyChr, two.referenceSpan.getStart(), two.referenceSpan.getEnd() + 1);
+
+        return intOne.overlapLen(intTwo);
     }
 
     static int getAlignmentStartInOriginalContig(final SAMRecord samRecord) {
