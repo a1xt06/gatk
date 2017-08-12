@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.serializer.KryoSerializer;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.utils.Utils;
@@ -175,12 +176,17 @@ public final class SparkContextFactory {
     private static JavaSparkContext createSparkContext(final String appName, Map<String,String> overridingProperties, final String master) {
         final SparkConf sparkConf = setupSparkConf(appName, master, DEFAULT_PROPERTIES, overridingProperties);
 
-        return new JavaSparkContext(sparkConf);
+	SparkSession spark = SparkSession.builder().config(sparkConf).getOrCreate();
+	JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
+        return jsc;
     }
 
     private static JavaSparkContext createTestSparkContext(Map<String, String> overridingProperties) {
         final SparkConf sparkConf = setupSparkConf("TestContext", DEFAULT_SPARK_MASTER, DEFAULT_TEST_PROPERTIES, overridingProperties);
-        return new JavaSparkContext(sparkConf);
+	
+	SparkSession spark = SparkSession.builder().config(sparkConf).getOrCreate();
+	JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
+        return jsc;
     }
 
     /**
