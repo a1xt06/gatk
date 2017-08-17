@@ -34,6 +34,7 @@ import com.google.cloud.storage.contrib.nio.CloudStorageConfiguration;
 public final class BucketUtils {
     public static final String GCS_PREFIX = "gs://";
     public static final String HDFS_PREFIX = "hdfs://";
+    public static final String DB_PREFIX = "dbfs:";
 
     // slashes omitted since hdfs paths seem to only have 1 slash which would be weirder to include than no slashes
     public static final String FILE_PREFIX = "file:";
@@ -60,7 +61,7 @@ public final class BucketUtils {
      * Returns true if the given path is a HDFS (Hadoop filesystem) URL.
      */
     public static boolean isHadoopUrl(String path) {
-        return path.startsWith(HDFS_PREFIX);
+        return path.startsWith(HDFS_PREFIX) || path.startsWith(DB_PREFIX);
     }
 
     /**

@@ -147,10 +147,10 @@ public final class SparkContextFactory {
      * @param context the context to stop
      */
     public static synchronized void stopSparkContext(final JavaSparkContext context) {
-        // only call stop for a non-test context
-        if (context != testContext) {
-            context.stop();
-        }
+//        // only call stop for a non-test context
+//        if (context != testContext) {
+//            context.stop();
+//        }
     }
 
 
